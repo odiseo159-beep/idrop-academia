@@ -1,0 +1,25 @@
+{
+  "i18n": {
+    "en": {
+      "title": "DeFi on BNB Chain",
+      "tagline": "Swaps, liquidity, yield — and the risks that come with them",
+      "description": "PancakeSwap, lending markets, liquidity pools, yield farming. Learn the mechanics of decentralized finance on BNB Chain, the difference between APR and APY, what impermanent loss really costs you, and how to evaluate a protocol before depositing a single cent."
+    },
+    "es": {
+      "title": "DeFi en BNB Chain",
+      "tagline": "Swaps, liquidez, yield — y los riesgos que vienen con ellos",
+      "description": "PancakeSwap, mercados de préstamos, pools de liquidez, yield farming. Aprende la mecánica de las finanzas descentralizadas en BNB Chain, la diferencia entre APR y APY, lo que la pérdida impermanente realmente te cuesta, y cómo evaluar un protocolo antes de depositar un solo céntimo."
+    }
+  },
+  "chain": "bnb",
+  "difficulty": "intermediate",
+  "status": "available",
+  "durationMinutes": 65,
+  "totalXp": 600,
+  "totalLessons": 5,
+  "category": "DeFi",
+  "icon": "trending-up",
+  "accent": "pink",
+  "tags": ["defi", "pancakeswap", "yield", "liquidity"],
+  "prerequisites": ["wallets-seguridad"]
+}

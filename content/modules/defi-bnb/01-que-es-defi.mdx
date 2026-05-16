@@ -1,0 +1,90 @@
+---
+title: "What is DeFi?"
+description: "Decentralized finance, in plain language — and why BSC became one of its biggest hubs."
+duration: 12
+xp: 120
+order: 1
+quiz:
+  - question: "What does \"DeFi\" actually stand for?"
+    options:
+      - text: "Decentralized Finance"
+        correct: true
+      - text: "Default Finance"
+        correct: false
+      - text: "Defensive Finance"
+        correct: false
+    explanation: "DeFi = Decentralized Finance. The umbrella term for financial services (lending, swapping, derivatives) running on smart contracts instead of through banks or brokerages."
+  - question: "What is the single biggest difference between DeFi and a traditional bank?"
+    options:
+      - text: "DeFi is always safer"
+        correct: false
+      - text: "DeFi has no permission system — anyone with a wallet can interact with any protocol, no account approval required"
+        correct: true
+      - text: "DeFi protocols guarantee returns"
+        correct: false
+    explanation: "Permissionlessness is the defining trait. There's no signup, no KYC at the protocol level, no manager approving your account. You connect a wallet and you can use it. That's the power *and* the responsibility."
+  - question: "Why did DeFi grow so much on BNB Chain specifically?"
+    options:
+      - text: "BNB Chain pays users to use it"
+        correct: false
+      - text: "Cheaper fees and faster blocks made experimentation accessible to retail users priced out of Ethereum in 2020-2021"
+        correct: true
+      - text: "BSC has no smart contracts"
+        correct: false
+    explanation: "When Ethereum gas fees hit double digits, many retail users moved to BSC where the same DeFi patterns worked at a fraction of the cost. PancakeSwap and Venus alone account for billions in TVL."
+---
+
+## The pitch in one paragraph
+
+**DeFi** is a way to do the things banks do — saving, borrowing, swapping, betting — without the bank. Instead of a corporation holding your money and deciding whether to let you use it, smart contracts hold the funds and execute the rules transparently. You connect a wallet, you sign a transaction, the contract does what it's coded to do. There's no signup, no manager, no business hours.
+
+That's the elevator pitch. Now let's unpack what it actually means in practice.
+
+## The four basic primitives
+
+Almost every DeFi protocol you'll encounter is some combination of these four building blocks:
+
+**Swapping**: trade one token for another instantly. The biggest example on BSC is **PancakeSwap**. The mechanism behind it (an Automated Market Maker, or AMM) is the next lesson — but the user experience is: pick token A, pick token B, click swap.
+
+**Lending and borrowing**: deposit a token to earn interest, or use deposits as collateral to borrow other tokens. **Venus** is the canonical example on BSC. You deposit BNB, the protocol gives you a fixed % yield. Or you deposit BNB and borrow USDT against it.
+
+**Liquidity provision**: put two tokens into a pool that other people use to swap, and earn a share of the swap fees. This is how AMMs work under the hood — and how a lot of DeFi yield gets generated.
+
+**Yield farming**: combine the above. Provide liquidity, receive LP tokens, stake those LP tokens in a "farm" to earn additional rewards (often the protocol's governance token). Sometimes called "money legos" because each layer composes on top of the previous one.
+
+There's a whole zoo of more exotic primitives — perpetual futures, options, prediction markets, real-world asset tokenization — but if you understand the four above, you can read most DeFi protocols.
+
+## Why BNB Chain specifically
+
+Ethereum was the original home of DeFi. It still has the deepest liquidity and the most innovation. But for most of 2020-2021, doing a $50 swap on Ethereum cost $30-100 in gas. That priced out an entire generation of retail users.
+
+BNB Smart Chain offered the same Solidity-based smart contract platform with $0.10 swap fees. The result was an explosion: **PancakeSwap** became the biggest DEX by trade count in the world, **Venus** built up billions in lending TVL, and a long tail of yield farms and forks ran a fast-and-furious 2021 cycle.
+
+The cost of that accessibility was honest:
+
+- **More scams**. Lower deployment cost = more rug pulls. Always check audits and team reputation.
+- **More forks**. Many protocols on BSC are direct copies of Ethereum protocols (PancakeSwap is largely a fork of Uniswap v2/v3, Venus of Compound). That's not bad — proven mechanisms — but it means innovation often happens on Ethereum first.
+- **More volatility in the long-tail**. The smaller a token's market cap, the more violently it moves.
+
+Today BSC is one of the top 5 chains by DeFi TVL, alongside Ethereum, Solana, Tron and a few L2s.
+
+## What you actually need to start
+
+To do anything in this module hands-on, you need:
+
+1. A wallet (covered in the previous module — MetaMask on BSC is fine).
+2. A few dollars of BNB for gas.
+3. Optional: some stablecoins (USDT or USDC on BSC) to actually swap or lend with. You can skip this and stick to testnet for the mechanics.
+
+If you've completed the **Wallets & Security** module, you're set. If not, do that first — the hard part of DeFi is not understanding it, it's not getting drained while you learn.
+
+## What's coming in this module
+
+- **Lesson 2** — How AMMs and PancakeSwap work, and why "slippage" matters
+- **Lesson 3** — Liquidity pools and LP tokens: where the yield comes from
+- **Lesson 4** — Yield farming and staking: stacking the legos
+- **Lesson 5** — The risks: impermanent loss, hacks, and how to evaluate a protocol before depositing
+
+By the end you should be able to read any DeFi protocol's docs and understand what's actually happening with your money.
+
+> DeFi rewards understanding. Every dollar lost in DeFi was lost by someone who didn't take the time to read what they were signing.

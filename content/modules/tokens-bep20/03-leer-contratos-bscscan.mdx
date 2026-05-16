@@ -1,0 +1,145 @@
+---
+title: "Reading a Token Contract on BscScan"
+description: "Hands-on: open any token's contract page and tell within 60 seconds whether it's safe."
+duration: 12
+xp: 125
+order: 3
+quiz:
+  - question: "When evaluating a new token on BscScan, what's the first tab to check?"
+    options:
+      - text: "Holders"
+        correct: false
+      - text: "Contract — and specifically whether the source code is verified"
+        correct: true
+      - text: "Comments"
+        correct: false
+    explanation: "If the source isn't verified, you literally cannot tell what the contract does. \"Verified\" means the developer published source matching the deployed bytecode. Any reputable token verifies. Unverified = walk away."
+  - question: "What's the most concerning function to find in a BEP-20 contract beyond the standard ones?"
+    options:
+      - text: "`name()`"
+        correct: false
+      - text: "Functions like `setTaxFee`, `blacklist`, `mint` (without cap), or `pause` callable by an owner"
+        correct: true
+      - text: "`balanceOf`"
+        correct: false
+    explanation: "Owner-controlled functions that let one address change taxes, freeze users, mint new tokens, or pause transfers are major centralization risks. Many scams hide in these. Always check who can call them and whether ownership is renounced."
+  - question: "What does \"renounced ownership\" mean?"
+    options:
+      - text: "The team has quit"
+        correct: false
+      - text: "The contract owner has been set to address(0), meaning no one can call owner-only functions anymore — including the original deployer"
+        correct: true
+      - text: "Tokens have been burned"
+        correct: false
+    explanation: "Calling `renounceOwnership()` sets the owner to address 0x0. Permanently. After that, no one can update fees, blacklist users, or mint new tokens. It's one of the strongest signals that a token is finalized and not subject to team manipulation."
+---
+
+## What you can learn from a contract page
+
+Every BEP-20 token has a page on **bscscan.com/token/0x...**. That page is a public, neutral source of truth. Reading it well is the difference between getting rugged and dodging the rug.
+
+Let's walk through what to look at, in priority order.
+
+## 1. Verified source code
+
+Top of the contract page, look for a green checkmark labeled **"Contract Source Code Verified"**.
+
+- ✅ **Verified**: the source code matches the deployed bytecode. You can read what the contract actually does.
+- ❌ **Unverified**: only the bytecode is on-chain, no human-readable source. You'd need to disassemble it to know what it does.
+
+**Always require verified source for any token you put real money into.** Reputable projects always verify. Unverified contracts are either lazy or hiding something. Either is bad.
+
+## 2. The Read Contract tab
+
+The "Read Contract" tab lists every public read function with a button to call it. For a standard BEP-20:
+
+- `name`, `symbol`, `decimals`, `totalSupply` — just confirm they match what other sources show.
+- `balanceOf(address)` — query any address's balance.
+- `owner` — **important**. The address that controls owner-only functions. If it's `0x0000...0000`, ownership is renounced.
+- `getOwner` — older variant, same idea.
+
+If the contract is non-standard, you'll see custom functions here. Read them. Anything called `taxFee`, `liquidityFee`, `marketingFee` is a tax token (more on those below). Anything called `isBlacklisted`, `isExcludedFromFee`, etc. tells you the contract has special-case logic.
+
+## 3. The Write Contract tab
+
+This shows every public write function (the ones that modify state). Focus on the ones with permission modifiers — usually `onlyOwner`.
+
+Things to look for:
+
+- **`setBuyTax` / `setSellTax`**: owner can change the tax rate at any time. Tax could be 1% today and 99% tomorrow.
+- **`mint`**: can the owner create new tokens at will? Is there a cap?
+- **`blacklist` / `excludeFromTransfer`**: can the owner stop specific addresses from selling? This is the classic "honeypot" pattern.
+- **`pause`**: can the owner halt all transfers?
+- **`transferOwnership`**: can ownership change? To whom?
+
+Having any of these doesn't automatically mean scam. Many legitimate tokens have them for upgrade reasons. But you need to know they exist and assess whether you trust the owner.
+
+## 4. The Holders tab
+
+Shows the top holders by balance.
+
+What to look for:
+
+- **Concentration**: if the top 10 holders hold >50% of supply, the token is highly centralized. Whales can move price unilaterally.
+- **Top holder is a contract**: usually fine if it's a known LP, vesting contract, or staking pool. BscScan often labels these.
+- **Top holder is the deployer or team wallet with no lock**: red flag — they can dump.
+- **Many addresses at exactly the same balance**: often a sign of airdrops or sybil setups; not bad per se, but interesting.
+- **Burn address (0xdead or 0x0) holds significant supply**: tokens have been burned, reducing circulating supply.
+
+## 5. The Transactions tab
+
+Recent transfers, in chronological order. What to look for:
+
+- **Activity pattern**: organic activity = many small transfers, mixed buy/sell. Pump pattern = many small buys followed by one giant sell.
+- **MEV bot activity**: if the same handful of addresses are trading constantly, it's likely sandwich bots and not real volume.
+- **Large outbound transfers from team wallets**: if the deployer's wallet is steadily moving tokens to exchanges, that's distribution / dump pressure.
+
+## 6. The Contract Creator
+
+Top of the page shows who deployed the contract. Click their address to see:
+
+- **How many other contracts have they deployed?** A serial deployer of similar tokens is often a serial rugger.
+- **What's their wallet activity?** Funded from a tornado cash mixer? Bigger flag than funded from a known exchange withdrawal.
+
+## A 60-second triage script
+
+Whenever someone shows you a "promising new token", do this in order:
+
+1. **bscscan.com/token/[address]** → does it load?
+2. Source code verified? (No → walk away.)
+3. Owner address? Renounced? Multisig? Or one EOA?
+4. Holders concentration? Top 10 hold > 50%?
+5. Tax structure? Buy/sell taxes? Can owner change them?
+6. Liquidity locked? For how long?
+7. Contract creator's history? Past rugs?
+8. Has the contract been audited by a known firm?
+
+You won't always get all yeses. The point isn't a perfect score — it's **knowing the actual risk**.
+
+## Common red flag combinations
+
+Each of these alone is sometimes acceptable. Together they're nearly always rugs:
+
+- ❌ Unverified contract + anonymous owner + no audit + 99% supply held by deployer
+- ❌ Verified + owner can change taxes to anything + LP not locked
+- ❌ Verified + has `setMaxTransactionAmount(uint256)` + owner can blacklist
+- ❌ "Reflection" token with constantly changing supply and untrackable holdings
+
+## Common green flag combinations
+
+- ✅ Verified + ownership renounced + LP locked >1 year + audit by reputable firm
+- ✅ Verified + multisig owner with public team + no mint function + capped supply
+- ✅ Years of history + high TVL or volume + clear documentation + active dev community
+
+## What about non-BEP-20 quirks?
+
+Some tokens add extra features that fundamentally change their behavior:
+
+- **Reflection tokens**: every transfer redistributes a percentage to all holders. Holders' balances change without any visible transactions in their address — confusing for accounting, often used to obscure tokenomics.
+- **Rebase tokens**: total supply changes algorithmically. Your balance number changes even without any transfers. These break a lot of tooling.
+- **Tax tokens**: every buy or sell includes a fee redirected somewhere (LP, marketing wallet, burn). Common for memecoins.
+- **Anti-whale tokens**: enforce a maximum balance per wallet or maximum transaction size. Useful for fair launch; can be abused to trap holders.
+
+If a token is one of these, you should specifically understand the mechanism before trading. The standard BEP-20 mental model doesn't fully apply.
+
+The next (and final) lesson in this module covers deploying your own BEP-20 token to BSC testnet. Cheap, hands-on, makes everything in this module concrete.

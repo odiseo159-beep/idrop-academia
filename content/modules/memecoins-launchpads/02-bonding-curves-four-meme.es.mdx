@@ -1,0 +1,163 @@
+---
+title: "Bonding Curves y Four.meme"
+description: "Cómo un launchpad pone precio a un token nuevo sin order book ni liquidez preexistente."
+duration: 13
+xp: 135
+order: 2
+quiz:
+  - question: "¿Qué es un bonding curve en el contexto de un launchpad de tokens?"
+    options:
+      - text: "Un producto del mercado de bonos"
+        correct: false
+      - text: "Una función matemática que pone precio a cada nuevo token basado en cuántos ya han sido minteados/vendidos — el precio sube a medida que el suministro circula"
+        correct: true
+      - text: "Un mecanismo de staking"
+        correct: false
+    explanation: "Los bonding curves son smart contracts que toman input (BNB) y mintean output tokens a un precio determinado por la curva. A medida que más tokens se compran, el precio sube por la curva. A medida que se venden de vuelta, el precio baja. Pricing autocontenido sin necesidad de un order book externo o LP."
+  - question: "En Four.meme, ¿qué pasa cuando un token \"se gradúa\" de la bonding curve?"
+    options:
+      - text: "El trading se detiene"
+        correct: false
+      - text: "Una vez que se alcanza un umbral de market cap (e.g. $69k), el contrato auto-despliega un LP en PancakeSwap usando las reservas acumuladas y quema los LP tokens, abriendo el token para trading normal de DEX"
+        correct: true
+      - text: "El equipo puede mintear más"
+        correct: false
+    explanation: "Graduación = la bonding curve hizo su trabajo. La liquidez se acumuló, el descubrimiento de precio sucedió. El protocolo mueve el token a PancakeSwap con un LP permanentemente bloqueado, y el trading continúa ahí con mecánicas AMM normales."
+  - question: "¿Cuál es el mayor riesgo económico de comprar muy temprano en una bonding curve?"
+    options:
+      - text: "El gas es muy alto"
+        correct: false
+      - text: "Si el lanzamiento falla en atraer más compradores, te quedas sosteniendo tokens que no tienen graduación, liquidez delgada, y pueden nunca llegar a un DEX real — probablemente valgan cero"
+        correct: true
+      - text: "Es contra la ley"
+        correct: false
+    explanation: "La mayoría de los lanzamientos no se gradúan. Sin graduación, tus tokens se quedan en una bonding curve con capacidad de buyback muy limitada. Si el sentiment muere antes del umbral de graduación, la curva drena, tu precio de venta colapsa, y te quedas con una bag ilíquida."
+---
+
+## El problema que resuelven los launchpads
+
+Imagina que estás lanzando un token nuevo. Antes de cualquier trading, tienes:
+
+- Sin precio (ningún mercado lo ha tradeado nunca)
+- Sin pool de liquidez (nadie ha contribuido BNB)
+- Sin compradores ni vendedores
+
+Un AMM normal (PancakeSwap) necesita un pool existente con ambos tokens para funcionar. Alguien tiene que sembrarlo. Si el equipo lo siembra, deciden el precio inicial (y pueden rugpullear). Si no lo hacen, no hay mercado.
+
+Este problema del huevo y la gallina es lo que los **bonding curves** resuelven elegantemente.
+
+## Qué es un bonding curve
+
+Un bonding curve es un smart contract que:
+
+1. Mantiene una reserva de un activo (típicamente BNB).
+2. Tiene total de tokens minteados de otro activo (el token nuevo).
+3. Implementa una **función de pricing** basada en cuántos tokens han sido minteados.
+4. Permite a cualquiera:
+   - **Comprar**: envía BNB → el contrato calcula cuántos tokens compra eso al precio actual → los mintea para ti. El precio sube.
+   - **Vender**: envía tokens → el contrato calcula BNB a devolver al precio actual → devuelve BNB. El precio baja.
+
+La matemática no necesita un order book ni liquidity providers. El contrato es el mercado entero.
+
+Una forma común es la **variante de producto constante**:
+
+```
+precio = a * suministro^k
+```
+
+Para algunas constantes `a` y `k`. A medida que `suministro` sube, `precio` sube. La integral de esta función sobre el rango de suministro da la reserva total necesaria para "comprar de vuelta" todos los tokens minteados — garantizando que el contrato siempre tenga suficiente BNB para honrar las ventas.
+
+## El diseño específico de Four.meme
+
+Four.meme en BNB Chain implementa una bonding curve estilo launchpad:
+
+1. **La creación de tokens es gratis o casi gratis** — cualquiera puede desplegar un nuevo token.
+2. **El precio inicial empieza muy bajo** — fracciones de centavo.
+3. **Las compras mueven el precio arriba en la curva**; las ventas lo mueven abajo. El descubrimiento de precio sucede orgánicamente.
+4. **Cada compra tiene un fee pequeño** que va al protocolo del launchpad (sosteniendo su operación) y parcialmente al pool de graduación de LP.
+5. **En un umbral de market cap** (comúnmente $69k o cerca; el número exacto es configurable), el token "se gradúa":
+   - Las reservas acumuladas de la curva (BNB + tokens minteados restantes) siembran un LP en PancakeSwap.
+   - Los LP tokens se queman (bloqueados para siempre).
+   - El trading continúa en PancakeSwap con dinámicas AMM normales.
+   - La bonding curve se cierra.
+
+Pre-graduación, todo el trading sucede en la bonding curve. Post-graduación, todo el trading sucede en PancakeSwap.
+
+## Por qué importa la graduación
+
+La graduación es la meta por dos razones:
+
+**1. Liquidez permanente**: los LP tokens se queman, lo que significa que nadie — ni el equipo, ni Four.meme, ni nadie — puede retirar la liquidez. Esto es "rug-proof" en el sentido de que el pool AMM no puede desaparecer.
+
+**2. Comportamiento estándar de DEX**: una vez en PancakeSwap, el token se tradea como cualquier otro. Cualquier wallet, cualquier agregador, cualquier bot de trading puede interactuar con él normalmente.
+
+Los tokens que **no se gradúan** se quedan en la bonding curve, que tiene reservas limitadas. Si el sentiment muere antes de la graduación, la curva drena a medida que la gente vende. Los últimos vendedores obtienen el peor precio.
+
+## El ciclo de vida de un lanzamiento típico
+
+La mayoría de los lanzamientos siguen un arco predecible:
+
+**Hora 0**: Token lanzado. Compradores iniciales (a menudo el lanzador y un puñado de seguidores tempranos) empujan el precio 5-10x dentro de minutos. La curva se calienta.
+
+**Horas 1-6**: Pumping en Twitter/Telegram. Los influencers pueden amplificar si pagan. El volumen sube. Dos resultados se ramifican:
+
+- **Camino A — Captura atención**: llegan más compradores, la curva sigue subiendo. El volumen construye orgánicamente. Alcanza el umbral de graduación dentro de días u horas.
+- **Camino B — Se estanca**: el pump inicial muere, sin compradores de seguimiento. La curva se aplana o empieza a declinar. La mayoría de los lanzamientos terminan aquí.
+
+**Días 1-7 (solo Camino A)**: El token se gradúa a PancakeSwap. A menudo un dump breve cuando los compradores de graduación toman ganancia. Luego o muere (la mayoría de los casos) o encuentra una base sostenida de holders y continúa tradeando.
+
+La tasa base de "cualquier lanzamiento aleatorio se gradúa" es baja — en porcentajes de un dígito, dependiendo de la tracción general del launchpad. De los que se gradúan, quizás 1 de cada 100 sostiene por meses.
+
+## Leyendo un lanzamiento de Four.meme
+
+Cuando cargas una página de token de Four.meme, busca:
+
+- **Market cap actual** vs **umbral de graduación**: ¿qué tan cerca de graduarse?
+- **% a graduación**: usualmente mostrado explícitamente. 5% significa muy temprano; 95% significa inminente grad.
+- **Conteo y concentración de holders**: porción del top 10 holders del suministro.
+- **Ratio buy/sell de la última hora**: si las ventas dominan por un margen enorme, la curva se está desenrollando.
+- **Tiempo desde el lanzamiento**: la mayoría de los lanzamientos que sobreviven más allá de 24 horas tienen una chance real. La mayoría que no se ha graduado en 72 horas probablemente no lo hará.
+- **Comentarios / chat**: la actividad social es un indicador líder.
+
+Four.meme también muestra la wallet del deployer — ¿qué tokens pasados ha lanzado? Si han lanzado 50 tokens que todos murieron, esto probablemente es similar.
+
+## Comprar temprano vs comprar tarde en la curva
+
+Dos estrategias, dos perfiles de riesgo:
+
+**Comprar temprano (curva &lt;10% a graduación)**:
+- Precio más bajo, mayor potencial de upside.
+- Mayor probabilidad de pérdida total (la mayoría de los lanzamientos mueren).
+- Mejor usado con tamaños de posición muy pequeños a través de muchos lanzamientos (enfoque de canasta).
+
+**Comprar tarde (curva 70-95% a graduación)**:
+- Precio más alto, menos upside.
+- Mayor probabilidad de que la graduación efectivamente se complete.
+- Riesgo: el dump de graduación puede borrar las ganancias poco después.
+
+**Comprar después de la graduación**:
+- Entrada de precio más alta de las tres.
+- Menor riesgo de pérdida total en el corto plazo inmediato.
+- Trading en entorno DEX estándar con liquidez más profunda.
+
+No hay respuesta objetivamente correcta. La elección depende de tu tolerancia al riesgo y qué tan confiado estás en la captura social de este token específico.
+
+## Limitaciones de los bonding curves
+
+A pesar de su elegancia, los bonding curves tienen desventajas:
+
+- **Sandwich attacks** aún aplican si la tolerancia de slippage es alta.
+- **Bots MEV** front-rean los lanzamientos populares, comiendo retornos de los compradores tempranos.
+- **Dumps de ballenas** en la curva tiran el precio desproporcionadamente porque la fórmula de la curva es más sensible que un pool AMM profundo.
+- **El trading es unidireccional en volumen**: solo puedes tradear contra la curva misma, no via routing por otros pools.
+
+Estas limitaciones son también por qué la graduación a PancakeSwap es deseable.
+
+## Resumen
+
+- Los bonding curves resuelven el problema de "sin liquidez al lanzar" con un contrato de pricing autocontenido.
+- Four.meme usa bonding curves con un umbral de graduación; los sobrevivientes se mueven a PancakeSwap con LP permanentemente bloqueado.
+- La mayoría de los lanzamientos no se gradúan. Dimensiona la posición acorde.
+- Las entradas pre- vs post-graduación tienen perfiles de riesgo diferentes.
+
+La próxima lección distingue un intento real de lanzamiento de un rugpull planeado — las diferencias estructurales en código de contrato y comportamiento del equipo.

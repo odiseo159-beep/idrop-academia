@@ -1,0 +1,161 @@
+---
+title: "Deploy Your Own Test Token"
+description: "Hands-on: write, deploy, and interact with your own BEP-20 on BSC testnet."
+duration: 14
+xp: 125
+order: 4
+quiz:
+  - question: "What's the safest place to deploy a token while learning?"
+    options:
+      - text: "BSC mainnet"
+        correct: false
+      - text: "BSC testnet (chain ID 97)"
+        correct: true
+      - text: "Local hardhat fork"
+        correct: false
+    explanation: "Testnet is free, has the same EVM behavior as mainnet, and tokens you deploy there have no real value (so mistakes are harmless). Hardhat is also valid for advanced workflows but slower to verify on a real explorer."
+  - question: "What's the simplest reliable BEP-20 implementation to inherit from?"
+    options:
+      - text: "OpenZeppelin's audited ERC20 contract"
+        correct: true
+      - text: "A fork of a memecoin"
+        correct: false
+      - text: "Hand-roll your own"
+        correct: false
+    explanation: "OpenZeppelin's ERC20.sol has been audited extensively, has clean semantics, and works directly on BSC (BEP-20 = ERC-20). For learning OR production, never reinvent this wheel."
+  - question: "After deploying, what's the most important next step before sharing the address?"
+    options:
+      - text: "Tweet about it"
+        correct: false
+      - text: "Verify the source code on BscScan so others can read what your contract does"
+        correct: true
+      - text: "Add liquidity immediately"
+        correct: false
+    explanation: "Verification is what makes your contract trustworthy to other users and tools. Until verified, your token is just opaque bytecode and most wallets/explorers will show warnings."
+---
+
+## What you'll build
+
+By the end of this lesson you'll have:
+
+- A deployed BEP-20 token on BSC testnet
+- A verified contract on BscScan testnet
+- A wallet that owns the entire initial supply
+- The ability to send the token, see balances, and interact with all standard functions
+
+This whole exercise costs you zero real money. The BNB used for gas comes from a faucet.
+
+## Setup
+
+You'll need three things:
+
+1. **MetaMask** with **BSC Testnet** added (chain ID **97**). If you completed the Wallets module you may already have it; otherwise:
+   - Network name: `BSC Testnet`
+   - RPC URL: `https://data-seed-prebsc-1-s1.binance.org:8545`
+   - Chain ID: `97`
+   - Currency: `tBNB`
+   - Explorer: `https://testnet.bscscan.com`
+2. **Testnet BNB** from `https://testnet.bnbchain.org/faucet-smart`. You'll get 0.5 tBNB — plenty.
+3. **Remix IDE** at `remix.ethereum.org` — a browser-based Solidity environment, no install required.
+
+## The contract
+
+In Remix, create a new file `MyToken.sol` and paste:
+
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+
+contract MyToken is ERC20 {
+    constructor(uint256 initialSupply)
+        ERC20("My Test Token", "MTT")
+    {
+        _mint(msg.sender, initialSupply * 10 ** decimals());
+    }
+}
+```
+
+That's the entire contract. A few things worth noting:
+
+- **OpenZeppelin's ERC20** does all the heavy lifting. Standard balances, transfers, approvals, events.
+- **`ERC20("My Test Token", "MTT")`** sets the name and symbol via the parent constructor.
+- **`_mint(msg.sender, initialSupply * 10 ** decimals())`** creates the initial supply and credits it to the deployer.
+- We pass `initialSupply` as a whole number; multiplying by `10^decimals` (default 18) converts to base units.
+
+That's it. No taxes, no blacklist, no mint, no owner. Just a clean BEP-20.
+
+## Compile
+
+In Remix:
+
+1. **Solidity Compiler** tab → version `0.8.20`+ → Compile.
+2. If you see warnings about OpenZeppelin imports, Remix should auto-resolve them. If not, click "Auto compile" or run a manual compile.
+
+You should see a green checkmark.
+
+## Deploy
+
+In Remix:
+
+1. **Deploy & Run Transactions** tab.
+2. **Environment**: choose `Injected Provider - MetaMask`. Remix will prompt MetaMask to connect.
+3. Confirm in MetaMask that you're on **BSC Testnet**. Top-right of Remix should show your testnet address and balance.
+4. Under **Contract**, select `MyToken`.
+5. In the constructor field, enter `1000000` (one million). Or any number.
+6. Click **Deploy**.
+7. MetaMask popup: review and **Confirm**. Wait a few seconds.
+
+You should see your contract appear under **Deployed Contracts** at the bottom. Note the deployed address.
+
+## Verify on BscScan testnet
+
+This is what makes your token "real" to the ecosystem.
+
+1. Go to `https://testnet.bscscan.com/address/[your_contract_address]`
+2. Click **Contract** tab → **Verify and Publish**
+3. Compiler version: same as you used in Remix (e.g. `v0.8.20`)
+4. License: MIT
+5. Optimization: No (matches Remix default)
+6. Paste your contract source. **Important**: BscScan needs to see the OpenZeppelin imports too. The easiest way is the **"Solidity (Standard JSON Input)"** option, which Remix can export directly.
+
+Alternative: use Remix's **Etherscan-Bscscan** plugin to verify in one click. Go to the Plugin Manager, activate "ETHERSCAN" plugin, then use it from the panel.
+
+After ~30 seconds the contract page on testnet.bscscan.com will show a green checkmark.
+
+## Interact
+
+Now the fun part. On the contract page on BscScan:
+
+- **Read Contract** tab: call `name`, `symbol`, `decimals`, `totalSupply`, `balanceOf(your_address)`. You should see your million tokens credited to the deployer (you).
+- **Write Contract** tab: connect your wallet (top of the section). Call `transfer(another_address, 1000 * 10^18)` to send 1000 tokens to a different address. Confirm in MetaMask, wait, then call `balanceOf(another_address)` to verify.
+- **Add the token to MetaMask**: Import token → paste contract address → MetaMask auto-fetches symbol and decimals. You'll now see your custom token in your wallet's token list.
+
+## What you've actually done
+
+You've deployed a fully functional, fully standard BEP-20 token. The same contract structure (give or take some features) underlies USDT, CAKE, BUSD, and most non-meme tokens on BSC.
+
+If you wanted to deploy this to **mainnet** (real value), the process is identical — just switch the network in MetaMask. It would cost real BNB for gas (a few cents). After deployment, you could:
+
+- Add it to PancakeSwap by creating a liquidity pool with another token.
+- Get it listed on price trackers.
+- Ship it to actual users.
+
+But before you do that on mainnet for anything serious, you should:
+
+- **Audit the contract**, ideally by a paid firm (CertiK, Hacken, etc.) for $5k-$50k depending on complexity.
+- **Test extensively** on testnet with edge cases.
+- **Plan tokenomics**: who gets the initial supply? Is it locked? Vested? Burned?
+- **Prepare LP**: how much liquidity will you provide? Will you lock it (e.g. via PinkLock)?
+- **Understand legal context** in your jurisdiction. Token issuance has regulatory implications.
+
+For learning, you're done. You've crossed a real line: from passive user of tokens to someone who has shipped one. The next time you read a BEP-20 contract on BscScan, you'll recognize what it's doing.
+
+## What's next
+
+Two more modules to go:
+- **NFTs on BNB Chain** — BEP-721, BEP-1155, marketplaces, real minting flow.
+- **Memecoins & Launchpads** — Four.meme bonding curves, fair launches, the math behind the moon shots.
+
+You now have everything you need to read, evaluate, and ship tokens on BNB Chain. Use it carefully.

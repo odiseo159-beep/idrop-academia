@@ -1,0 +1,25 @@
+{
+  "i18n": {
+    "en": {
+      "title": "Memecoins & Launchpads",
+      "tagline": "Mechanics, math and the risks the threads don't tell you",
+      "description": "Why memecoins exist, how launchpads like Four.meme price tokens via bonding curves, the mechanical difference between a launch and a rugpull, and the analytical lenses that help you separate signal from hype before you ape in."
+    },
+    "es": {
+      "title": "Memecoins y Launchpads",
+      "tagline": "Mecánica, matemáticas y los riesgos que los hilos no te cuentan",
+      "description": "Por qué existen las memecoins, cómo launchpads como Four.meme ponen precio a los tokens mediante bonding curves, la diferencia mecánica entre un lanzamiento y un rugpull, y los lentes analíticos que te ayudan a separar señal del hype antes de meter capital."
+    }
+  },
+  "chain": "bnb",
+  "difficulty": "advanced",
+  "status": "available",
+  "durationMinutes": 55,
+  "totalXp": 550,
+  "totalLessons": 4,
+  "category": "Trading",
+  "icon": "flame",
+  "accent": "pink",
+  "tags": ["memecoins", "launchpad", "trading", "risk"],
+  "prerequisites": ["defi-bnb"]
+}

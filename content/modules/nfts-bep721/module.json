@@ -1,0 +1,25 @@
+{
+  "i18n": {
+    "en": {
+      "title": "NFTs on BNB Chain",
+      "tagline": "BEP-721, BEP-1155, marketplaces and how minting really works",
+      "description": "Beyond JPEGs: understand the difference between BEP-721 and BEP-1155, how metadata and IPFS fit together, the role of marketplaces like Element and OpenSea on BSC, and walk through a real minting flow on a testnet collection."
+    },
+    "es": {
+      "title": "NFTs en BNB Chain",
+      "tagline": "BEP-721, BEP-1155, marketplaces y cómo funciona el minteo en realidad",
+      "description": "Más allá de los JPEGs: entiende la diferencia entre BEP-721 y BEP-1155, cómo encajan los metadatos e IPFS, el rol de marketplaces como Element y OpenSea en BSC, y recorre un flujo real de minteo en una colección de testnet."
+    }
+  },
+  "chain": "bnb",
+  "difficulty": "intermediate",
+  "status": "available",
+  "durationMinutes": 45,
+  "totalXp": 450,
+  "totalLessons": 4,
+  "category": "NFTs",
+  "icon": "image",
+  "accent": "cyan",
+  "tags": ["nft", "bep-721", "bep-1155", "marketplace"],
+  "prerequisites": ["tokens-bep20"]
+}

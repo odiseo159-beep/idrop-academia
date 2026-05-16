@@ -1,0 +1,104 @@
+---
+title: "Seed Phrases & Real Threats"
+description: "How wallets actually get drained — and the mistakes that enable it."
+duration: 13
+xp: 115
+order: 3
+quiz:
+  - question: "Which of these is the safest place to store a seed phrase?"
+    options:
+      - text: "A note in your iCloud"
+        correct: false
+      - text: "A photo on your phone"
+        correct: false
+      - text: "Pen on paper, kept in a safe physical location"
+        correct: true
+      - text: "An encrypted file on Google Drive"
+        correct: false
+    explanation: "Anything that touches a cloud-synced device can be exfiltrated by malware or compromised accounts. Paper has no attack surface beyond physical access. Steel backups are even better, but paper beats every cloud option."
+  - question: "What is a wallet drainer?"
+    options:
+      - text: "A bug in MetaMask"
+        correct: false
+      - text: "A malicious smart contract that, once approved, can pull tokens from your wallet"
+        correct: true
+      - text: "A type of hardware wallet"
+        correct: false
+    explanation: "Drainers are smart contracts deployed by attackers. They trick you into signing an `approve` or a malicious permit, then drain your tokens at their leisure. Most major losses on EVM chains today involve drainers, not stolen seed phrases."
+  - question: "Someone DMs you 'support' and asks to verify your seed phrase. What do you do?"
+    options:
+      - text: "Send it — it's official support"
+        correct: false
+      - text: "Never share it. Real support never asks for it. Block and report."
+        correct: true
+      - text: "Send only the first 6 words, just in case"
+        correct: false
+    explanation: "No legitimate entity ever needs your seed phrase. Ever. Sharing any portion of it is equivalent to sharing all of it for security purposes."
+---
+
+## How wallets actually get drained, in 2025
+
+There are three categories that account for the overwhelming majority of losses on BNB Chain (and EVM chains generally). Knowing them is the difference between a stressful but recoverable mistake and total wipeout.
+
+### 1. Seed phrase compromise
+
+Someone gets your 12 words. They import your wallet on their device. They send everything to themselves within minutes. There's no way to reverse it.
+
+Common ways this happens:
+
+- **Cloud-synced notes**: photographing the seed, putting it in iCloud Notes, Google Keep, Notion. If your cloud account is breached (often via SIM swap or password reuse), the seed leaks.
+- **Fake wallet apps**: downloading "MetaMask" from a sketchy app store or website that's actually a clone designed to exfiltrate your seed during setup.
+- **Social engineering**: someone impersonating "support" on Discord, Telegram, or Twitter, asking you to "verify" your wallet by entering your seed into a form. The form sends it to them.
+- **Physical theft**: paper backup found by someone you didn't expect.
+
+### 2. Malicious approvals (drainers)
+
+This is now the biggest category. Here's the mechanics:
+
+- You visit what looks like a legitimate site — a fake airdrop claim, a clone of a real DEX, a "verify wallet" link from a phishing email.
+- You connect your wallet. Connecting alone is *safe* — it doesn't grant any spending power.
+- The site presents you with a transaction to sign. The MetaMask popup says something like "Approve USDT" or, worse, an opaque message you can't easily read.
+- You sign. What you actually approved was a contract that can now `transferFrom` unlimited tokens out of your wallet whenever it wants.
+- Later (sometimes seconds later, sometimes days), the contract drains the approved tokens.
+
+The wallet is never "hacked." You authorized the drain by signing the approval.
+
+### 3. Wrong-network sends
+
+This isn't theft, but it loses funds just as effectively. Sending tokens via the wrong chain — for example, withdrawing from an exchange on "BEP-2 (Beacon Chain)" instead of "BEP-20 (Smart Chain)", or sending an ERC-20 token to a BSC address from Ethereum without bridging — frequently means the tokens land somewhere unrecoverable. We covered this in the previous lesson: always confirm the network on both ends.
+
+## The seed phrase rules
+
+Internalize these. They are not negotiable:
+
+> **Rule 1**: Never type your seed phrase into any website, ever. Not for a "wallet validation". Not for an "airdrop claim". Not for "support". Never.
+
+> **Rule 2**: Never store your seed phrase in any file that touches a cloud — iCloud, Google Drive, Dropbox, OneNote, Notion, your email drafts, your password manager's notes (debatable), your phone's photo gallery.
+
+> **Rule 3**: Pen and paper, in a physical location only you can access. Multiple copies in geographically separate locations if the value justifies it. Stainless steel backups (Cryptosteel, Billfodl, etc.) for fire/water resistance if you're holding meaningful amounts.
+
+> **Rule 4**: Treat any DM from "support" with the assumption that it's a scammer. Real support, when it exists, never initiates contact and never needs your seed.
+
+## Defending against drainers
+
+The drainer category is the harder one because there's no one rule. A few defensive habits:
+
+**Read MetaMask popups, every time.** When MetaMask shows you a transaction, check what *function* you're calling. `approve(spender, amount)` for an unlimited amount on a token you've never approved before, on a site you don't recognize, is a giant red flag. The MetaMask UI surfaces this — but only if you actually look.
+
+**Use a transaction simulator.** Tools like **Pocket Universe**, **Wallet Guard**, or **Blockaid** (built into Rabby and increasingly into MetaMask) preview what a transaction will *actually* do — "this will transfer all your USDT to address 0xabc". If the preview disagrees with what the site claims, do not sign.
+
+**Compartmentalize.** Don't keep your savings in the wallet you use for daily exploration. Have a "hot" wallet with small amounts for trying new dApps, and a separate "cold" wallet (ideally backed by a hardware wallet) for holdings.
+
+**Audit your approvals periodically.** Tools like **revoke.cash** show every spending approval your address has ever granted. Revoke approvals for contracts you no longer use, especially for stablecoins and major tokens.
+
+**Use a hardware wallet for any meaningful balance.** A Ledger or Trezor signs transactions on the device itself — even if your computer is fully compromised, the attacker can't move funds without your physical confirmation on the device.
+
+## What attackers don't have
+
+Despite everything above, the chain itself is sound. Attackers cannot:
+
+- Forge transactions you didn't sign
+- Reverse legitimate transactions
+- Steal from an address whose seed phrase remains private and which has no malicious approvals outstanding
+
+Every drain you read about is, fundamentally, the user signing something they shouldn't have, or losing custody of the seed. Both categories are preventable with discipline. The next lesson formalizes that discipline as a routine.

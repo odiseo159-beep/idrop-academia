@@ -1,0 +1,146 @@
+---
+title: "Transfers and Approvals Under the Hood"
+description: "Why DeFi needs `approve` — and why infinite approvals are the silent killer."
+duration: 12
+xp: 125
+order: 2
+quiz:
+  - question: "Why can't a DEX directly grab your tokens to execute a swap?"
+    options:
+      - text: "It can"
+        correct: false
+      - text: "Smart contracts can't access tokens you hold without explicit permission — they need an `approve` call from you first"
+        correct: true
+      - text: "Gas is too expensive"
+        correct: false
+    explanation: "BEP-20 doesn't let arbitrary contracts pull funds from your wallet. You must first call `approve(spenderContract, amount)`. Then the contract can call `transferFrom` up to that limit."
+  - question: "What does \"infinite approval\" mean and why is it risky?"
+    options:
+      - text: "Many DApps default to approving the maximum possible value (2^256-1) to save you future approval gas — but if the contract is later exploited or malicious, an attacker can drain all your tokens of that type"
+        correct: true
+      - text: "It's a tax structure"
+        correct: false
+      - text: "It's required by BEP-20"
+        correct: false
+    explanation: "Infinite approval means the spender can withdraw any amount of that token from your wallet at any time, indefinitely. Convenient for swap UX, dangerous if the spender is ever compromised. Always question whether you need infinite or could approve just the amount you're swapping."
+  - question: "How can you safely revoke an approval you no longer need?"
+    options:
+      - text: "Burn your tokens"
+        correct: false
+      - text: "Call `approve(spender, 0)` — sends a transaction setting allowance to zero. Tools like revoke.cash automate finding and revoking these."
+        correct: true
+      - text: "It's not possible to revoke"
+        correct: false
+    explanation: "An approval is just an entry in the contract's `allowances` mapping. Setting it back to 0 with another `approve` call (costs gas) revokes it. revoke.cash audits all your approvals and lets you revoke in one click each."
+---
+
+## Two kinds of token movement
+
+There are exactly two ways a BEP-20 token can move from one address to another:
+
+1. **`transfer(to, amount)`** — called by the address that owns the tokens. Direct send.
+2. **`transferFrom(from, to, amount)`** — called by an authorized third party who's been pre-approved by `from`.
+
+The first is simple: you call it, your tokens move. The second is the entire foundation of DeFi.
+
+## Why `transferFrom` exists
+
+Imagine you want to swap 100 USDT for BNB on PancakeSwap. The flow has to look something like:
+
+1. You hand 100 USDT to the PancakeSwap router contract.
+2. The router executes the swap.
+3. The router hands you back BNB.
+
+Step 1 is the problem. PancakeSwap can't just reach into your wallet and grab 100 USDT. The USDT contract would refuse — only the wallet that *holds* the USDT can call `transfer` on it.
+
+The solution: **approval**. Before the swap:
+
+```
+You call: USDT.approve(PancakeSwapRouter, 100)
+```
+
+This stores an entry in USDT's `allowances` mapping: `allowances[your_address][router] = 100`. It's a permission slip.
+
+Now during the swap:
+
+```
+PancakeSwap calls: USDT.transferFrom(your_address, router, 100)
+```
+
+The USDT contract checks: is `allowances[your_address][router] >= 100`? Yes. Decrement the allowance, move the tokens. Done.
+
+This pattern — `approve` then `transferFrom` — is how every DEX, every lending protocol, every DeFi anything works.
+
+## Why infinite approvals exist
+
+Notice that the approve in step 1 was for exactly 100 USDT — only enough for that one swap.
+
+The problem: every approve costs gas. If you do 10 swaps a day, that's 20 transactions (10 approves + 10 swaps), not 10. To save users gas, dApps default to approving the **maximum possible value**: 2^256 - 1, often displayed as "Unlimited" or "∞".
+
+With infinite approval, you only pay the approve gas once per token-DEX pair. Future swaps are just the swap transaction.
+
+The cost of this convenience is the **drainer attack**:
+
+- You approved Router X for unlimited USDT, three months ago.
+- Today, attackers find a vulnerability in Router X.
+- They call `transferFrom(everyone_who_approved, attacker_address, max)` for every approver.
+- Your USDT is gone. You did nothing today. You signed nothing today. The approval from three months ago was the entire authorization needed.
+
+This isn't theoretical. It's how some of the largest DeFi exploits unfold once a contract is compromised.
+
+## The practical defense
+
+You have three options, in order of safety:
+
+**Option 1 — Approve exact amount, every time.**
+Highest gas cost, lowest risk. Each transaction is double-the-gas. Worth it for large amounts you swap rarely.
+
+**Option 2 — Approve a reasonable max, and rotate approvals.**
+Approve, say, 10x your typical swap size. Periodically revoke and re-approve. Mid-tier safety, mid-tier convenience.
+
+**Option 3 — Approve unlimited, and audit regularly.**
+Lowest gas, highest convenience. Run **revoke.cash** every month or two and revoke any approvals you don't actively need. Acceptable for active users; risky for set-and-forget portfolios.
+
+Modern wallets (Rabby, MetaMask with simulators) let you customize the approval amount in the UI. Use that. The default of "Unlimited" is the worst case.
+
+## Reading approvals on BscScan
+
+Every approval emits an `Approval(owner, spender, value)` event. You can see your approvals in two places:
+
+**On BscScan, your address page**:
+- Tab "Token Approvals" → lists all current approvals across BEP-20s.
+- For each row: the token, the spender contract, the allowance amount.
+
+**On revoke.cash**:
+- Connect wallet → see all approvals across BSC + many other chains.
+- One-click revoke per approval.
+- Use this every 1-2 months as hygiene.
+
+## The `Approval` event misconception
+
+Many people assume the `Approval` event firing means tokens have moved. It doesn't.
+
+`Approval` = permission was granted (or modified, or revoked).
+`Transfer` = tokens actually moved.
+
+When you see a `Transfer` event in your address's history, your tokens moved — either you sent them or someone with approval pulled them. When you see only `Approval`, no tokens moved; you just gave (or revoked) permission.
+
+This distinction matters for tax reporting and accounting. Don't conflate them.
+
+## EIP-2612 / Permit: the modern alternative
+
+A newer standard called **Permit (EIP-2612)** lets the approval happen via signature, off-chain, without a separate transaction. The user signs a permit message; the spender contract submits both the permit and the action together in one transaction.
+
+Pros: fewer transactions, no separate approve gas, signature happens off-chain.
+Cons: not all tokens implement Permit. USDT on BSC does not. USDC does. CAKE does.
+
+Permit is what enables "gasless approvals" on some modern DEX UIs. But you're still **signing something** that grants spending power. The same vigilance applies: read what you sign.
+
+## Summary mental model
+
+- BEP-20 tokens move via `transfer` (you push) or `transferFrom` (a contract pulls, with prior permission).
+- `approve` is a permission slip stored in the token contract's `allowances` mapping.
+- Infinite approvals = convenience + future risk if the spender is ever compromised.
+- Audit your approvals at revoke.cash periodically. It's the cheapest insurance in DeFi.
+
+Next lesson: how to read a contract on BscScan to evaluate any BEP-20 token before you touch it.

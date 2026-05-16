@@ -1,0 +1,25 @@
+{
+  "i18n": {
+    "en": {
+      "title": "Wallets & Security",
+      "tagline": "Custody your keys without losing your funds",
+      "description": "A non-custodial wallet is the only thing standing between you and the entire onchain world. Learn what a wallet actually is, set up MetaMask for BNB Chain step by step, understand the threats that drain people every week, and adopt the operational habits that experienced users use to stay safe."
+    },
+    "es": {
+      "title": "Wallets y Seguridad",
+      "tagline": "Custodia tus llaves sin perder tus fondos",
+      "description": "Una wallet no-custodial es lo único entre tú y el mundo onchain entero. Aprende qué es realmente una wallet, configura MetaMask para BNB Chain paso a paso, entiende las amenazas que drenan a usuarios cada semana, y adopta los hábitos operacionales que usan los usuarios experimentados para mantenerse seguros."
+    }
+  },
+  "chain": "bnb",
+  "difficulty": "beginner",
+  "status": "available",
+  "durationMinutes": 50,
+  "totalXp": 450,
+  "totalLessons": 4,
+  "category": "Security",
+  "icon": "shield",
+  "accent": "purple",
+  "tags": ["wallet", "metamask", "security", "self-custody"],
+  "prerequisites": ["fundamentos-bnb"]
+}

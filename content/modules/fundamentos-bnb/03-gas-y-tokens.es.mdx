@@ -1,0 +1,104 @@
+---
+title: "Gas, BNB nativo y BEP-20"
+description: "Por qué cada transacción necesita BNB, y la diferencia entre tokens nativos y de contrato."
+tagline: "Por qué cada transacción necesita BNB, y la diferencia entre tokens nativos y de contrato."
+bullets:
+  - "BNB nativo · el combustible de toda tx"
+  - "BEP-20: tokens como contratos"
+  - "Estimar gas en BscScan sin error"
+duration: 12
+videoMin: 9
+readingMin: 3
+xp: 100
+order: 3
+quiz:
+  - question: "¿Por qué necesitas BNB para hacer cualquier cosa en BSC, incluso si solo quieres hacer swap de stablecoins?"
+    options:
+      - text: "Es un fee de marketing"
+        correct: false
+      - text: "Cada transacción consume gas, y el gas se paga en BNB"
+        correct: true
+      - text: "Solo para cuentas premium"
+        correct: false
+    explanation: "BNB es el token nativo de gas. Cada operación — transferencias, swaps, llamadas a contratos — quema gas, y el gas se denomina en BNB. Sin BNB, sin transacciones."
+  - question: "¿Cuál es la diferencia entre BNB nativo y un token BEP-20?"
+    options:
+      - text: "Nada, son lo mismo"
+        correct: false
+      - text: "BNB nativo vive a nivel del protocolo; los tokens BEP-20 son entradas dentro de un smart contract"
+        correct: true
+      - text: "Los tokens BEP-20 son más rápidos"
+        correct: false
+    explanation: "BNB nativo tiene su propio campo de balance que la cadena en sí misma rastrea. Un token BEP-20 (USDT, CAKE, etc.) es solo una entrada de balance en algún smart contract estilo ERC-20."
+  - question: "¿Qué es WBNB y por qué existe?"
+    options:
+      - text: "Wrapped BNB — una versión BEP-20 de BNB que permite a los contratos tratar BNB como un token regular"
+        correct: true
+      - text: "Un token scam que evitar"
+        correct: false
+      - text: "Un derivado de staking"
+        correct: false
+    explanation: "Muchos contratos router de DEX solo saben manejar tokens BEP-20. WBNB es una versión 1:1 envuelta de BNB nativo para poder usarlo en esos contratos. PancakeSwap rutea a través de él constantemente."
+---
+
+## Dos clases de valor en la misma cadena
+
+Abre MetaMask conectado a BSC y verás, digamos:
+
+```
+0.4521 BNB
+135.20 USDT
+2,400 CAKE
+```
+
+Estos parecen lo mismo — tres balances uno al lado del otro. Pero por debajo viven en **dos mundos completamente distintos**.
+
+**BNB nativo** es especial. La blockchain misma mantiene un balance para cada dirección. Cuando envías 0.1 BNB a un amigo, la cadena debita tu balance y acredita el suyo a nivel de protocolo. No interviene ningún smart contract.
+
+**USDT, CAKE, y casi cualquier otro token** son **tokens BEP-20**. *No* son rastreados por la cadena. Son rastreados dentro de un smart contract — básicamente un libro mayor grande que dice "la dirección 0xABC tiene 135 USDT". Cuando "envías" USDT, estás llamando a la función `transfer` de ese contrato, que actualiza una entrada en su mapping interno.
+
+Esa distinción explica el 90% de la confusión que tienen los recién llegados.
+
+## Qué es el gas, en un párrafo
+
+Cada operación en la cadena cuesta trabajo computacional — opcodes, lecturas de almacenamiento, escrituras de almacenamiento. La cadena asigna un costo (en **unidades de gas**) a cada operación. Tú, el remitente, pagas por ese trabajo por adelantado. El precio que pagas por unidad de gas es el **gas price**, denominado en **gwei** (1 gwei = 0.000000001 BNB).
+
+> **Fee total = gas usado × gas price**
+
+Si un swap consume 150,000 unidades de gas y el gas price es 3 gwei, pagas `150,000 × 3 × 10⁻⁹ = 0.00045 BNB`. A, digamos, $600 por BNB, eso son unos 27¢.
+
+Siempre pagas el gas en **BNB nativo**. No puedes pagar gas en USDT, ni aunque tengas un millón. Esta es la razón individual más común por la que los nuevos usuarios se quedan atascados: hacen bridge de stablecoins a BSC, intentan hacer swap, y obtienen un error de "insufficient funds for gas" porque su balance de BNB es cero.
+
+> **Regla práctica**: mantén al menos $2-3 en BNB líquido en cualquier wallet que uses activamente. Es el "precio del sello" de la cadena.
+
+## BEP-20 en 30 segundos
+
+Un contrato de token BEP-20 expone un set pequeño de funciones que cada wallet y cada dApp sabe llamar:
+
+- `balanceOf(address)` — ¿cuánto tiene esta dirección?
+- `transfer(to, amount)` — enviar tokens.
+- `approve(spender, amount)` — permitir a otro contrato sacar tokens de tu balance, hasta un límite.
+- `transferFrom(from, to, amount)` — usado por el spender aprobado.
+
+Eso es todo. Una vez que un token implementa esas funciones, MetaMask, Trust Wallet, PancakeSwap, BscScan y todos los demás pueden interactuar con él. El estándar es la lingua franca.
+
+Hay un módulo entero sobre BEP-20 más adelante. Por ahora, la idea clave es: **un token BEP-20 *es* un smart contract**. Su dirección (por ejemplo `0x55d398326f99059fF775485246999027B3197955` — eso es USDT en BSC) es la dirección del contrato.
+
+## WBNB: puenteando los dos mundos
+
+Muchos contratos DeFi — especialmente los routers de DEX — están escritos para manejar tokens BEP-20 uniformemente. No tienen un código especial para BNB nativo. Para hacer BNB usable en esos contratos, existe un token llamado **WBNB (Wrapped BNB)**.
+
+WBNB es un contrato de token BEP-20 con una regla: puedes depositar BNB nativo en él y recibir una cantidad equivalente de WBNB, o quemar WBNB y recuperar BNB nativo. Siempre 1:1. Sin fees más allá del gas.
+
+Cuando haces un swap en PancakeSwap de BNB a USDT, el router envuelve silenciosamente tu BNB en WBNB primero, luego ejecuta el swap. Nunca ves WBNB en tu wallet porque se envuelve y desenvuelve en la misma transacción. Pero está ahí.
+
+Si alguna vez ves `WBNB` aparecer en la traza de una transacción en BscScan, esa es la razón.
+
+## Qué llevarte
+
+- **BNB nativo** es lo que la cadena misma rastrea. Pagas gas en él.
+- **Tokens BEP-20** son balances dentro de smart contracts. La mayoría de cosas que vas a tradear son BEP-20.
+- **WBNB** existe para que los contratos puedan tratar BNB como si fuera un token BEP-20.
+- Siempre mantén algo de BNB para gas. Siempre.
+
+En la próxima lección haremos zoom out y miraremos el resto del ecosistema BNB — opBNB, Greenfield, y las dApps que de hecho vas a usar.

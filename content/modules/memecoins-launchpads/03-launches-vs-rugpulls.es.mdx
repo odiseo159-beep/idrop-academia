@@ -1,0 +1,180 @@
+---
+title: "Lanzamientos vs Rugpulls"
+description: "Las diferencias mecánicas entre un fair launch real y un exit scam disfrazado."
+duration: 13
+xp: 135
+order: 3
+quiz:
+  - question: "¿Cuál es el mecanismo técnico más común usado en un \"liquidity rug\"?"
+    options:
+      - text: "El equipo posee los LP tokens y los retira, drenando el pool"
+        correct: true
+      - text: "El exchange se cae"
+        correct: false
+      - text: "El token expira"
+        correct: false
+    explanation: "Si el equipo mantiene los LP tokens del pool de trading (en lugar de quemarlos o bloquearlos), pueden llamar `removeLiquidity` y sacar todo el BNB, dejando a los holders con tokens sin valor. Bloquear LP tokens (o quemarlos) es la medida anti-rug más básica."
+  - question: "¿Qué es un token \"honeypot\"?"
+    options:
+      - text: "Un token con yields altos"
+        correct: false
+      - text: "Un token cuyo contrato tiene lógica oculta que previene a direcciones no del equipo de vender — los compradores nunca pueden salir"
+        correct: true
+      - text: "Un token que te paga por holdear"
+        correct: false
+    explanation: "Los honeypots clásicos usan blacklists, fees de transferencia que redondean a 100% para wallets no del equipo, o checks de modifier que revierten ventas. Los compradores ven el precio pumpeando pero nunca pueden realizar las ganancias. Herramientas como Token Sniffer marcan patrones conocidos de honeypot."
+  - question: "¿Cuál de estas es la ÚNICA señal más fuerte de que un lanzamiento NO es un rugpull?"
+    options:
+      - text: "Telegram activo"
+        correct: false
+      - text: "La liquidez está verificablemente bloqueada o quemada, Y la propiedad del contrato está renunciada"
+        correct: true
+      - text: "Muchos holders"
+        correct: false
+    explanation: "Estas dos condiciones juntas remueven la habilidad del equipo de (a) drenar el LP y (b) modificar el contrato para introducir nuevos ataques. Muchos otros factores importan, pero sin estos dos, ninguna otra señal realmente te protege."
+---
+
+## La pregunta central
+
+Ves un token nuevo en Four.meme o recién añadido a PancakeSwap. El precio se mueve. El Telegram zumba. La pregunta que determina todo: **¿es esto un intento real de token comunitario, o un exit scam planeado?**
+
+Ambos lucen superficialmente similares en las primeras horas. Las diferencias son mecánicas, observables onchain, y aprendibles en 10 minutos.
+
+## La taxonomía de rugs
+
+No todo lanzamiento fallido es un rug. Distinguir categorías importa:
+
+### Liquidity rug (LP rug)
+
+El equipo es el único LP. Después de que suficientes compradores llenan el pool con BNB, llaman `removeLiquidity`. El BNB se va con ellos, el pool cae a cero BNB, y tus tokens se vuelven invendibles.
+
+**Detección**: revisa quién posee los LP tokens.
+- LP tokens en la wallet del equipo → alto riesgo de rug.
+- LP tokens en `0x000...dead` (dirección de quema) → permanente.
+- LP tokens en un contrato locker conocido (PinkLock, UNCX, Team.Finance) → bloqueados por la duración del lock. Verifica la duración.
+
+### Mint rug (inflación de suministro)
+
+El contrato tiene una función `mint()` callable por el dueño. Después de que los compradores acumulan, el dueño mintea un suministro masivo nuevo, lo dumpea al pool, y sale con el BNB. Los tokens de los holders se diluyen a ~0.
+
+**Detección**: lee el contrato en BscScan.
+- Busca cualquier función `mint`, `_mint`, `setSupply`, `inflate`.
+- Verifica si son `onlyOwner` y si la propiedad está renunciada.
+- Tokens de suministro fijo (sin mint público, cap inmutable) no pueden ser mint-rugged.
+
+### Honeypot
+
+La compra funciona. La venta revierte. Implementaciones comunes:
+
+- Blacklist: el contrato mantiene una blacklist; direcciones no whitelisteadas no pueden transferir.
+- Sell tax de 99%: técnicamente puedes vender, pero recibes 1% del valor esperado.
+- Modifier de transferencia con condiciones ocultas: parece una transferencia normal pero revierte basado en lógica del caller.
+
+**Detección**:
+- **Token Sniffer** (`tokensniffer.com`) y **Honeypot.is** prueban programáticamente el comportamiento de buy/sell. Gratis, rápido, preciso.
+- Lee el contrato por cualquier lógica custom de transferencia. ERC20 estándar de OpenZeppelin = limpio. Overrides modificados de `_transfer` = lee con cuidado.
+- Prueba con un monto ínfimo primero: compra 0.001 BNB, luego inmediatamente intenta vender. Si la venta falla, es un honeypot.
+
+### Slow rug / soft rug
+
+El equipo gradualmente vende su asignación a lo largo de semanas o meses. El precio sangra lento mientras los canales sociales insisten "estamos construyendo". Para cuando es obvio, los holders están 80% abajo.
+
+**Detección**: monitorea wallets conocidas del equipo via BscScan. Salidas sostenidas a exchanges = distribución.
+
+### Tax rug
+
+El contrato establece taxes muy altas de buy/sell (e.g. 50% sell tax). Las taxes van a una "wallet de marketing" controlada por el equipo. Efectivamente un drenaje lento de cada transacción.
+
+Tokens con taxes altas pueden ser legítimos (las taxes pueden hacer buy back, financiar desarrollo, lock más LP). Pero taxes altas + flujo opaco de tax + wallet de tax controlada por el equipo = estructura de rug.
+
+**Detección**: lee el contrato por `_taxFee`, `_liquidityFee`, `_marketingFee`. Rastrea hacia dónde van los proceeds. Si van a una EOA en la que no confías, trátalo como rug-adyacente.
+
+## Cómo se ve un lanzamiento "justo", mecánicamente
+
+Un lanzamiento diseñado para no ruggear tiene estas propiedades — verificables onchain:
+
+**1. Liquidez bloqueada o quemada**
+
+- LP tokens enviados a `0x000...dead` (quemados) o a un contrato conocido con time-lock.
+- Duración del lock ≥ 6 meses, idealmente 1+ años para un proyecto que quiere demostrar compromiso.
+
+**2. Propiedad renunciada**
+
+- `owner()` retorna `0x000...0000`.
+- Después de esto, nadie puede llamar funciones `onlyOwner`. Sin nuevos mints, sin cambios de tax, sin adiciones a blacklist, sin upgrades.
+
+**3. Sin funciones maliciosas en el contrato**
+
+- Solo funciones BEP-20 estándar, o extensiones que han sido auditadas y explicadas.
+- Sin mint oculto, sin blacklist, sin pause de transferencia.
+
+**4. Distribución razonable de tokens**
+
+- El top holder no es 50%+ del suministro (excluyendo el LP mismo y la dirección de quema).
+- Múltiples compradores tempranos, no solo un puñado de wallets fundeadas por bot.
+
+**5. Compromiso verificable del equipo (opcional, depende del proyecto)**
+
+- Para equipos no anon: fundadores doxxeados con stake reputacional.
+- Owner con multi-sig antes de la renuncia.
+- Roadmap público con milestones onchain.
+
+Para memecoins puras, el punto 5 a menudo se salta — la propuesta de valor no requiere credibilidad del equipo una vez que 1-4 están en su lugar. El contrato es el equipo después de la renuncia.
+
+## Leyendo las señales de BscScan
+
+Caminando a través de un lanzamiento nuevo en BscScan, en orden:
+
+1. **Header de la página del token**: ¿Está verificado el contrato? (Requerido.)
+2. **Tab "Holders"**:
+   - ¿Hay una entrada `0x000...dead` que mantiene los LP tokens? Buena señal.
+   - ¿O el LP está en un contrato locker? Haz click, verifica la duración del lock.
+   - ¿O el LP está en una EOA (y la dirección empieza con un hash no trivial)? Riesgo.
+3. **Tab "Read Contract"**:
+   - `owner()` retorna `0x000...0000`? Bueno.
+   - `totalSupply()` coincide con lo que se afirma?
+4. **Tab "Write Contract"** (si no está renunciado):
+   - ¿Qué funciones son `onlyOwner`?
+   - Atención particular a `setTaxFee`, `_mint`, `pause`, `addToBlacklist`.
+5. **Tab "Source Code"**:
+   - Si puedes leer Solidity aunque sea un poco, escanea por patrones inusuales.
+   - Mira el constructor y la función `_transfer`.
+   - O pega en Token Sniffer para una lectura automatizada.
+
+En ~3 minutos puedes hacer este triage para cualquier token. Hazlo un hábito antes de cualquier compra.
+
+## Herramientas de locker que verás
+
+La afirmación "LP bloqueado en X" es verificable. Los lockers mayores en BSC:
+
+- **PinkLock** (`pink.bsc/lock`): ampliamente usado. El lock se puede revisar en `pink.bsc/lock/[lock_id]`.
+- **UNCX Network** (`uncx.network`): locker LP cross-chain.
+- **Team Finance** (`team.finance/view-coin/[address]`): también ofrece vesting para tokens del equipo.
+
+Cada uno muestra: cantidad bloqueada, fecha de unlock, owner. Verifica que estos coincidan con lo que el equipo afirma. "¡Liquidez bloqueada por 100 años!" debería ser verificable en segundos.
+
+## Un script de check de rug en 60 segundos
+
+Para cualquier token que alguien te muestre:
+
+1. Abre BscScan. ¿Contrato verificado? (No → camina lejos.)
+2. Tab Holders. ¿LP bloqueado / quemado? (No → camina lejos.)
+3. ¿Owner renunciado? (¿O multisig con signers creíbles?)
+4. Token Sniffer o Honeypot.is. ¿Honeypot detectado? (Sí → camina lejos.)
+5. Concentración del top holder. ¿Top 10 < 50%? (No → alto riesgo.)
+6. Historial del creator del contrato. ¿Repeat-deployer? (Sí → alto riesgo.)
+
+Si los seis pasan, has eliminado el riesgo evidente de rug. El riesgo restante es riesgo de mercado (acción de precio, dinámicas de atención) — la incertidumbre legítima.
+
+## Lo que no puedes detectar
+
+Algunos riesgos son casi invisibles hasta que se disparan:
+
+- **Upgrades futuros del contrato** si se usa patrón proxy y la propiedad no está renunciada.
+- **Ataques de gobernanza** si el proyecto tiene una DAO con baja participación de votantes.
+- **Acuerdos off-chain** entre el equipo y CEX que nunca vemos.
+- **Información privilegiada** sobre el timing de salida.
+
+Para estos, el tiempo es tu mejor amigo. Un lanzamiento que ha estado durante meses sin incidente es más confiable que el lanzamiento de ayer con todas las casillas marcadas.
+
+La próxima (y última) lección traduce todo esto a un marco de sizing de posición y exit — convirtiendo evitar rugs en retornos reales.

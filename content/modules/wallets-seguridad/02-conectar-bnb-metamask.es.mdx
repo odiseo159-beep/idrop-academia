@@ -1,0 +1,131 @@
+---
+title: "Conectar BNB Chain a MetaMask"
+description: "Paso a paso: instala MetaMask, agrega BSC, fondéala, envía tu primera transacción."
+duration: 14
+xp: 110
+order: 2
+quiz:
+  - question: "Cuando instalas MetaMask, ¿a qué se conecta por defecto?"
+    options:
+      - text: "BNB Smart Chain"
+        correct: false
+      - text: "Ethereum Mainnet"
+        correct: true
+      - text: "Bitcoin"
+        correct: false
+    explanation: "MetaMask se conecta por defecto a Ethereum Mainnet. Tienes que agregar explícitamente BNB Smart Chain como red para interactuar con ella."
+  - question: "¿Qué es un chain ID y por qué importa?"
+    options:
+      - text: "Un alias para la cadena — puramente cosmético"
+        correct: false
+      - text: "Un identificador numérico único (BSC = 56) que previene ataques de replay entre cadenas"
+        correct: true
+      - text: "La contraseña de tu wallet"
+        correct: false
+    explanation: "Cada cadena EVM tiene un chain ID único (Ethereum=1, BSC=56, Polygon=137). Se incluye en cada transacción firmada para que una transacción firmada para una cadena no pueda reproducirse en otra."
+  - question: "¿Cuál es la forma más segura de agregar BSC a MetaMask?"
+    options:
+      - text: "Hacer clic en cualquier botón de 'Add network' en un sitio web random"
+        correct: false
+      - text: "Usar chainlist.org oficial o los docs de BNB Chain para copiar parámetros verificados"
+        correct: true
+      - text: "Inventar tu propia URL RPC"
+        correct: false
+    explanation: "Sitios maliciosos pueden ofrecer configs de red falsos que rutean tu tráfico a un RPC de phishing. Siempre verifica los parámetros de red contra fuentes oficiales como chainlist.org o docs.bnbchain.org."
+---
+
+## Paso 1 — Instala MetaMask de forma limpia
+
+Ve a **metamask.io** directamente. Escribe la URL tú mismo. No googlees "MetaMask download" y le des clic al primer anuncio — esos anuncios se han usado para distribuir instaladores falsos de MetaMask más de una vez.
+
+Instala la extensión del navegador (o la app móvil, pero para aprender, navegador es más fácil).
+
+Cuando MetaMask se abra:
+
+1. Elige **Create a new wallet**.
+2. Pon una contraseña fuerte — esto solo protege la instalación local, no la cadena. Si alguien obtiene tu seed phrase tu contraseña no importa.
+3. MetaMask te revelará tu **frase de recuperación de 12 palabras**. **Escríbela en papel.** No en una captura de pantalla. No en un gestor de contraseñas todavía. No en tu app de Notas. En papel.
+4. Confirma la frase reescribiendo las palabras en orden. Hecho.
+
+Ahora tienes una EOA. Red por defecto: Ethereum Mainnet. Necesitamos agregar BSC.
+
+## Paso 2 — Agrega BNB Smart Chain
+
+El camino más simple es vía **chainlist.org**:
+
+1. Ve a `chainlist.org`.
+2. Busca "BNB Smart Chain Mainnet".
+3. Confirma que muestra **chain ID 56**.
+4. Haz clic en **Connect Wallet**, luego **Add to MetaMask**.
+5. Aprueba el popup.
+
+Si prefieres ingresar manualmente, los parámetros son:
+
+| Campo | Valor |
+|---|---|
+| Nombre de la red | BNB Smart Chain |
+| URL RPC | `https://bsc-dataseed.bnbchain.org` |
+| Chain ID | `56` |
+| Símbolo de moneda | BNB |
+| Block explorer | `https://bscscan.com` |
+
+Cambia a ella desde el dropdown de redes en la parte superior de MetaMask. Tu balance ahora leerá `0 BNB`.
+
+> **Por qué importa el chain ID 56**: cada transacción firmada incluye el chain ID. Una transacción que firmes para chain 56 no se ejecutará en chain 1 (Ethereum). Esto previene *ataques de replay* — alguien capturando tu transacción firmada e intentando broadcastearla en otra cadena.
+
+## Paso 3 — Consigue algo de BNB
+
+Tu dirección está vacía. Para enviar cualquier transacción (incluso recibir una transferencia de token es gratis, pero para *hacer* algo) necesitas BNB para gas.
+
+Dos caminos, según tu situación:
+
+**Mainnet (dinero real):**
+
+- Compra BNB en un exchange centralizado (Binance, Coinbase, Kraken, etc.).
+- Retira a tu dirección de MetaMask. **Crucial: selecciona "BNB Smart Chain (BEP-20)" como red de retiro**, no "BNB Beacon Chain (BEP-2)" — esa es la cadena retirada y perderás tus fondos. No todos los exchanges siguen soportando retiros BEP-2; muchos los bloquean.
+- Un primer depósito típico de ~$10 en BNB es suficiente para muchas transacciones mientras aprendes.
+
+**Testnet (gratis, sin valor real):**
+
+- Agrega la **BSC Testnet** a MetaMask (chain ID 97, busca en chainlist).
+- Visita un faucet como `testnet.bnbchain.org/faucet-smart` y solicita 0.5 BNB de testnet.
+- Este BNB no tiene valor real y no se puede vender, pero es perfecto para practicar.
+
+**Para el resto de este módulo, testnet sirve.** No necesitas arriesgar dinero real para aprender la mecánica.
+
+## Paso 4 — Envía tu primera transacción
+
+Elige cualquier dirección que controles (o la de un amigo). En MetaMask:
+
+1. Haz clic en **Send**.
+2. Pega la dirección destinataria. **Siempre verifica los primeros 4 y últimos 4 caracteres a ojo** — el malware secuestrador de portapapeles es una categoría real.
+3. Ingresa una cantidad, por ejemplo `0.001 BNB`.
+4. Mira la estimación de gas — debería ser una fracción ínfima de un centavo.
+5. Haz clic en **Confirm**.
+
+Aparece un hash de transacción. Haz clic en él para abrir BscScan. Verás:
+
+- El hash
+- Direcciones From / To
+- Valor transferido
+- Gas usado y gas price
+- Número de bloque y confirmaciones
+
+Felicidades. Acabas de ejecutar una transacción onchain sin permiso de nadie.
+
+## Qué pasó técnicamente
+
+Por detrás, MetaMask:
+
+1. Construyó un objeto de transacción: `{from, to, value, nonce, gasPrice, gasLimit, chainId: 56}`.
+2. Le pidió a tu llave privada firmarlo (esto pasó localmente — tu llave privada nunca salió de la extensión).
+3. Envió la transacción firmada vía JSON-RPC a un nodo de BSC.
+4. El nodo la propagó a la red de validadores.
+5. Un validador la incluyó en un bloque en ~1 segundo.
+6. El bloque se finalizó y BscScan la recogió.
+
+No le confiaste tu dinero a MetaMask — le confiaste formatear y broadcastear un mensaje que tú firmaste. Hay una diferencia significativa.
+
+## Qué sigue
+
+Tienes una wallet funcional en BNB Chain. La próxima lección es la parte que la mayoría se salta y luego lamenta: **entender cómo se roban las seed phrases**, y qué hacen los atacantes una vez que la tienen.

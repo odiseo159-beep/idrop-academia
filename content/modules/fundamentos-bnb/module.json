@@ -1,0 +1,40 @@
+{
+  "i18n": {
+    "en": {
+      "title": "BNB Chain Fundamentals",
+      "tagline": "Where it came from, how it works, why it matters in 2025",
+      "description": "Start here. Get the conceptual map of BNB Chain — its history, the relationship between BNB Smart Chain, opBNB, and Greenfield, how validators secure the network, and how to think about gas. By the end you can read any BscScan transaction without getting lost.",
+      "hookLine": "Where it came from · how it works · why it matters in 2025",
+      "learningOutcomes": [
+        "Read a BscScan transaction without getting lost between addresses and gas.",
+        "Tell BNB Smart Chain, opBNB and Greenfield apart — and what each is for.",
+        "Understand the PoSA model and why validators rotate every 24h.",
+        "Think about gas in native BNB terms, not abstract \"fees\"."
+      ]
+    },
+    "es": {
+      "title": "Fundamentos de BNB Chain",
+      "tagline": "De dónde viene, cómo funciona, por qué importa en 2025",
+      "description": "Empieza aquí. Construye el mapa conceptual de BNB Chain — su historia, la relación entre BNB Smart Chain, opBNB y Greenfield, cómo los validadores aseguran la red, y cómo pensar en el gas. Al final podrás leer cualquier transacción de BscScan sin perderte.",
+      "hookLine": "De dónde viene · cómo funciona · por qué importa en 2025",
+      "learningOutcomes": [
+        "Leer una transacción de BscScan sin perderte entre direcciones y gas.",
+        "Diferenciar BNB Smart Chain, opBNB y Greenfield — y para qué sirve cada una.",
+        "Entender el modelo PoSA y por qué los validadores rotan cada 24 h.",
+        "Pensar en gas en términos de BNB nativo, no de \"fees\" abstractos."
+      ]
+    }
+  },
+  "chain": "bnb",
+  "difficulty": "beginner",
+  "status": "available",
+  "durationMinutes": 45,
+  "totalXp": 400,
+  "totalLessons": 4,
+  "category": "Fundamentals",
+  "icon": "compass",
+  "accent": "primary",
+  "tags": ["bnb", "bsc", "fundamentals", "no-prereqs"],
+  "keyConcepts": ["PoSA", "BSC", "opBNB", "Greenfield", "Validadores", "Gas", "BEP-20", "BscScan", "Finalidad", "Bridges"],
+  "suggestedNext": "wallets-seguridad"
+}

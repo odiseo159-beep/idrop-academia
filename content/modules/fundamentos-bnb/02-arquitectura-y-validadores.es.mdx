@@ -1,0 +1,95 @@
+---
+title: "Arquitectura y validadores"
+description: "Cómo BSC produce bloques, quién opera los validadores, y qué significa realmente PoSA."
+tagline: "Cómo BSC produce bloques, quién opera los validadores, y qué significa realmente PoSA."
+bullets:
+  - "PoSA real vs. marketing"
+  - "21 activos + 20 candidatos"
+  - "Bloque cada 3 s · finalidad 7,5 s"
+duration: 11
+videoMin: 8
+readingMin: 3
+xp: 100
+order: 2
+quiz:
+  - question: "¿Qué mecanismo de consenso usa BNB Smart Chain?"
+    options:
+      - text: "Proof of Work"
+        correct: false
+      - text: "Proof of Stake (vainilla)"
+        correct: false
+      - text: "Proof of Staked Authority (PoSA)"
+        correct: true
+      - text: "Delegated Byzantine Fault Tolerance"
+        correct: false
+    explanation: "BSC usa Proof of Staked Authority — un híbrido que combina Proof of Authority (un set pequeño de validadores) con Proof of Stake (los validadores deben bloquear BNB)."
+  - question: "¿En qué se diferencia PoSA del Proof of Stake de Ethereum?"
+    options:
+      - text: "PoSA tiene más validadores"
+        correct: false
+      - text: "PoSA tiene un set activo de validadores mucho más pequeño y rotativo"
+        correct: true
+      - text: "PoSA no requiere ningún token bloqueado"
+        correct: false
+    explanation: "Ethereum tiene cientos de miles de validadores. El set activo de BSC son decenas de validadores rotando desde un pool de candidatos algo más grande — así logra mayor throughput."
+  - question: "¿Cuál es la implicación práctica de tener menos validadores?"
+    options:
+      - text: "Bloques más rápidos y fees más bajos, pero más centralización"
+        correct: true
+      - text: "Bloques más lentos pero mejor seguridad"
+        correct: false
+      - text: "No hace ninguna diferencia práctica"
+        correct: false
+    explanation: "Menos validadores = menos overhead de coordinación = bloques más rápidos y baratos. El trade-off es centralización: una supermayoría coordinada de validadores podría en teoría censurar o reorganizar la cadena."
+---
+
+## Qué hace un validador
+
+Cada blockchain necesita a alguien que:
+
+1. **Ordene transacciones** — elija qué transacciones van en el siguiente bloque.
+2. **Las ejecute** — corra el código de los smart contracts y actualice el estado.
+3. **Firme el resultado** — produzca un bloque que otros nodos puedan verificar.
+
+En BSC, las entidades que hacen esto son los **validadores**. Corren software de nodo especializado, mantienen un stake en BNB, y se turnan para producir bloques. A cambio, ganan los fees de gas de las transacciones que incluyen (y solían ganar una recompensa por inflación — eso terminó después de que BEP-95 quemara la inflación).
+
+## PoSA: Proof of Staked Authority
+
+El consenso de BSC se llama **Proof of Staked Authority (PoSA)**. El nombre es una pista:
+
+- Parte **Authority**: solo un set pequeño y conocido de validadores está *activo* en cualquier momento. No cualquiera puede levantar un nodo y empezar a producir bloques. Esto se toma de las cadenas **Proof of Authority**.
+- Parte **Staked**: para *ser* validador hay que bloquear una cantidad significativa de BNB. Si te portas mal (firmas dos bloques en conflicto, te quedas offline mucho tiempo), parte de ese stake se quema (slashing). Esto se toma de **Proof of Stake**.
+
+El set activo de validadores rota periódicamente — hay un pool más grande de validadores stakeados como candidatos, y los top stakers (con algo de aleatoriedad) se seleccionan como productores activos para cada época.
+
+Los números exactos (tamaño del set activo, longitud de la época, parámetros de slashing) han cambiado múltiples veces vía BEPs (BNB Evolution Proposals) y siguen evolucionando, así que no memorices cifras específicas — memoriza la *forma* del sistema.
+
+## ¿Por qué este diseño?
+
+Compara dos diseños extremos:
+
+> **Bitcoin / Ethereum**: decenas a cientos de miles de participantes independientes. Máxima descentralización. Lento, caro, difícil de censurar.
+>
+> **Una base de datos tradicional**: una entidad. Máximo throughput. Trivial de censurar.
+
+PoSA se sienta deliberadamente entre los dos. Manteniendo el set de validadores pequeño (y económicamente alineado vía stake), la cadena puede:
+
+- Producir bloques en alrededor de un segundo en lugar de 12+
+- Cobrar fees en centavos en lugar de dólares
+- Procesar más transacciones por segundo
+
+El costo es honesto: **BSC está más centralizada que Ethereum**. Una supermayoría coordinada de validadores podría censurar transacciones o revertir bloques. En la práctica esto no ha pasado de forma maliciosa, pero es el riesgo estructural que estás aceptando.
+
+## Qué significa esto para ti como usuario
+
+No necesitas correr un validador. La mayoría de los días no necesitas pensar en consenso. Pero dos implicaciones prácticas se siguen del diseño de PoSA:
+
+**La finalidad es rápida.** Una transacción incluida hace unos pocos bloques es, a efectos prácticos, final. No esperas minutos como en Bitcoin.
+
+**La censura es teóricamente posible.** Para el 99.9% de la actividad esto nunca importa. Para aplicaciones que *no pueden* ser censuradas — por ejemplo, un protocolo sancionado, o una DAO controvertida — el set de validadores más grande de Ethereum es un modelo de seguridad significativamente diferente.
+
+## Dónde mirar
+
+Si alguna vez quieres ver quiénes están validando ahora mismo, el explorer oficial de BNB Chain expone el set activo, sus tasas de comisión y su poder de voto. Vale la pena tenerlo bookmarkeado solo para hacer la abstracción concreta:
+
+> **bscscan.com/validators** — vista en tiempo real de quién está produciendo tus bloques.

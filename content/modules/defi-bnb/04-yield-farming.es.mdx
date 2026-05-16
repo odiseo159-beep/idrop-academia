@@ -1,0 +1,132 @@
+---
+title: "Yield Farming y Staking"
+description: "Cómo los LP tokens se convierten en recompensas de farm — y por qué APR no es APY."
+duration: 13
+xp: 120
+order: 4
+quiz:
+  - question: "¿Cuál es la diferencia entre un \"pool\" y una \"farm\" en PancakeSwap?"
+    options:
+      - text: "Nada, son lo mismo"
+        correct: false
+      - text: "Un pool genera LP tokens a partir de un par de tokens; una farm stakea esos LP tokens para ganar recompensas adicionales (como CAKE)"
+        correct: true
+      - text: "Las farms son pools más riesgosos"
+        correct: false
+    explanation: "Pool = AMM al que provees liquidez (gana fees de swap + LP token). Farm = contrato de staking que toma tu LP token y paga emisiones adicionales (usualmente el token de gobernanza del protocolo)."
+  - question: "¿Cuál es la diferencia entre APR y APY?"
+    options:
+      - text: "Nada, términos de marketing"
+        correct: false
+      - text: "APR es la tasa anual simple; APY asume que compones las recompensas de vuelta a la posición"
+        correct: true
+      - text: "APY solo aplica a stablecoins"
+        correct: false
+    explanation: "APR = retorno anualizado simple. APY = retorno anualizado compuesto, asumiendo que reinviertes recompensas continuamente. APY siempre es ≥ APR. Los vaults auto-compounders convierten APR en APY automáticamente."
+  - question: "¿Por qué los APRs extremos de yield farms (e.g. 5,000%+) NO suelen ser un buen deal?"
+    options:
+      - text: "Siempre son scams"
+        correct: false
+      - text: "Las emisiones altas usualmente significan que el token de recompensa se está inflando rápido, así que su precio cae — y tu yield real es mucho menor de lo que sugiere el APR titular"
+        correct: true
+      - text: "Razones fiscales"
+        correct: false
+    explanation: "Si una farm paga 5,000% APR en TOKEN_X, pero TOKEN_X pierde 90% de su precio durante el período (porque se está emitiendo al mercado más rápido de lo que la demanda absorbe), tu retorno real es mucho menor que el número titular. Siempre revisa con qué te quedarías realmente después de la presión de venta."
+---
+
+## El flujo de farming, de punta a punta
+
+El yield farming es solo la composición de dos cosas que ya aprendiste:
+
+1. Provee liquidez → obtén LP tokens
+2. Stakea LP tokens en una farm → obtén emisiones adicionales
+
+Aquí va el flujo canónico en PancakeSwap:
+
+```
+Tener CAKE + BNB
+   ↓ depositar en pool CAKE/BNB
+Recibir LP tokens CAKE-BNB
+   ↓ stakear en farm CAKE/BNB
+Ganar emisiones CAKE encima de los fees de swap
+   ↓ cosechar periódicamente
+Vender CAKE / re-stakear CAKE / volver a meter en LP
+```
+
+Ese último paso es donde entra el compounding. Si re-depositas el CAKE cosechado en el LP y re-stakeas, tu posición crece con el tiempo sin que añadas nuevo capital. Esa es la base de los "vaults auto-compounders" — protocolos que hacen el loop de cosecha+restakear automáticamente.
+
+## ¿De dónde vienen las emisiones?
+
+El CAKE que ganas de la farm no se genera por volumen de trading. Se **mintea** como parte de la tokenómica del protocolo — tokens recién creados, distribuidos según un schedule.
+
+Cada farm tiene un "multiplicador" o "peso" que determina qué porción de las emisiones totales recibe. PancakeSwap asigna X CAKE por bloque a todas las farms combinadas; la farm CAKE/BNB podría obtener 30% de eso, USDT/BNB podría obtener 20%, las farms más pequeñas obtienen porciones más chicas.
+
+Esto significa:
+- **Las emisiones totales son fijadas por el protocolo**.
+- **Tu porción de las emisiones de cualquier farm = tu % del suministro stakeado de LP en esa farm**.
+- **El valor en dólares de esas emisiones depende del precio del token de recompensa**.
+
+Lo que lleva al aviso más importante en farming…
+
+## El APR es una mentira (más o menos)
+
+Una farm anunciando "1,200% APR" no está mintiendo sobre la matemática. Si depositas $1,000, podrías genuinamente ganar el equivalente a $12,000 en TOKEN al precio *actual* a lo largo de un año.
+
+Pero "precio actual" es la trampa. Las emisiones de tokens son presión de venta. A medida que más TOKEN se mintea al mercado, los holders venden, el precio cae, y el valor en dólares de las emisiones *futuras* cae.
+
+Para farms nuevas con emisiones altas, es común ver:
+
+| Día | Precio token | APR (en token) | APR (en USD) |
+|---|---|---|---|
+| 1 | $1.00 | 1,200% | 1,200% |
+| 30 | $0.40 | 1,200% | 480% |
+| 90 | $0.10 | 1,200% | 120% |
+| 180 | $0.04 | 1,200% | 48% |
+
+El APR titular se queda igual (sigues ganando el mismo número de tokens por dólar depositado), pero tu yield en dólares colapsa al caer el precio del token.
+
+Un check de cordura útil: imagina que el precio del token de recompensa fuera a **cero** en 6 meses. ¿Aún querrías estar en esta farm?
+
+Respóndelo honestamente. La respuesta para la mayoría de "5000% APR mooncoin farms" es no.
+
+## Yield sostenible vs no sostenible
+
+Dos extremos para anclar el espectro:
+
+**Sostenible**:
+- LP de stablecoin USDT/USDC en un DEX mayor, ganando 5% APR de fees de swap puros. Sin emisiones, bajo riesgo, bajo retorno.
+- LP ETH/USDC v3 con gestión activa de rango en Ethereum, ganando 15-30% de fees sobre volumen real.
+
+**No sostenible**:
+- LP CAKE/BUSD ganando 200% APR, donde 195% son emisiones CAKE (presión de venta) y 5% son fees reales.
+- Farm flamante de "MOON/BNB" ganando 50,000% APR la primera semana, luego el equipo rugea.
+
+Las opciones de menor yield componen. Las de mayor yield están extrayendo valor de alguien (a menudo la próxima ronda de farmers).
+
+## El modelo de Syrup Pools de CAKE
+
+PancakeSwap también tiene **Syrup Pools** — staking de un solo activo. Stakea CAKE solo, gana ya sea más CAKE (el pool estándar) o tokens de proyectos partner (pools IFO e incentivo).
+
+Esto es más simple que farming porque no hay LP token, no hay pérdida impermanente. Pero ata tu CAKE, y la calidad de las recompensas varía mucho. El clásico pool CAKE-por-CAKE ha sido una opción confiable de APR de un dígito durante años.
+
+## Auto-compounders y vaults
+
+Cosechar y reinvertir manualmente es molesto. Protocolos como **Beefy Finance** y el propio auto-CAKE pool de PancakeSwap lo automatizan: cosechan tus recompensas cada pocas horas, venden o re-LPean automáticamente, y restakean.
+
+Pros: mejor APY (compounding), menos gas gastado en cosecha manual, menos overhead mental.
+
+Contras: otro smart contract en quien confiar, fee adicional cobrado por el vault (usualmente 1-5% del yield), y tu posición ahora está expuesta al riesgo de dos protocolos en lugar de uno.
+
+Para posiciones que vas a dejar por semanas o meses, los vaults usualmente ganan en neto. Para posiciones que estás gestionando activamente, manual está bien.
+
+## Marco práctico de decisión
+
+Antes de depositar en cualquier farm, responde:
+
+1. **¿Es el pool subyacente uno en el que estaría solo por los fees?** Si no harías LP en este par sin emisiones, las emisiones te están sobornando para tomar una mala posición.
+2. **¿Qué % del APR es real (fees) vs emisiones?** Lee la documentación del protocolo. Si no lo desglosan, eso es una bandera.
+3. **¿Cuál es el schedule de emisión del token de recompensa?** ¿Halving cada 3 meses? ¿Constante para siempre? El schedule te dice si el yield se sostendrá o colapsará.
+4. **¿Puedo retirar en cualquier momento?** La mayoría de farms sí; algunas tienen lockups. Lee antes de stakear.
+5. **¿Cuánto tiempo hasta breakeven en gas?** Posiciones pequeñas en redes caras pueden tomar semanas de yield solo para empatar el gas de depósito. (Menos un problema en BSC, pero vale la pena revisarlo.)
+
+La próxima lección es el deep dive de riesgos: pérdida impermanente con números reales, hacks, auditorías, y cómo evaluar realmente un protocolo antes de depositar.

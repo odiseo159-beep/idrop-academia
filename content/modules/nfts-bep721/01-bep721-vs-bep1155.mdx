@@ -1,0 +1,139 @@
+---
+title: "BEP-721 vs BEP-1155: Two NFT Standards"
+description: "What makes a token \"non-fungible\" — and when to use which standard."
+duration: 11
+xp: 115
+order: 1
+quiz:
+  - question: "What does \"non-fungible\" actually mean?"
+    options:
+      - text: "Worth more than $100"
+        correct: false
+      - text: "Each individual token is unique and not interchangeable with others of its type — unlike, say, dollars, where any $1 bill substitutes for any other"
+        correct: true
+      - text: "Cannot be transferred"
+        correct: false
+    explanation: "Fungibility = interchangeability. 1 USDT = 1 USDT. But CryptoPunk #1234 ≠ CryptoPunk #5678 — they're individual items with distinct identities, even though they share a contract."
+  - question: "When would you use BEP-1155 instead of BEP-721?"
+    options:
+      - text: "Always, it's just newer"
+        correct: false
+      - text: "When you need both unique items AND fungible items in the same contract — useful for game items where some are 1-of-1 and others come in stacks"
+        correct: true
+      - text: "Only for music NFTs"
+        correct: false
+    explanation: "BEP-1155 is a hybrid standard. Each token ID can have any quantity (1 for unique, 100 for limited edition, infinite for currency-like). One contract can hold many token types. Saves gas for projects with many SKUs."
+  - question: "What's the difference between an NFT's `tokenId` and its actual content (image/video/etc)?"
+    options:
+      - text: "They're the same"
+        correct: false
+      - text: "The `tokenId` is just a number that identifies the NFT in the contract; the actual content lives at a separate URI (often IPFS) referenced by the metadata"
+        correct: true
+      - text: "The content is stored on-chain by default"
+        correct: false
+    explanation: "NFTs are pointers. The contract knows token #1234 belongs to address 0xABC. To get the image, you call `tokenURI(1234)` which returns a URL pointing to a JSON file containing the image URL. If that URL goes down, the NFT loses its visible content."
+---
+
+## Fungibility, defined
+
+**Fungible**: every unit is interchangeable. 1 BNB you hold = 1 BNB I hold. They're the same.
+
+**Non-fungible**: each unit has a distinct identity. Your concert ticket and my concert ticket are both "tickets to the same concert", but yours might be seat 12, mine seat 47. We can't swap blindly without losing information.
+
+NFTs are the second category — tokens where each instance carries unique identifying information beyond just "I am 1 unit of this asset".
+
+The classic examples:
+
+- **CryptoPunks** — 10,000 algorithmically generated portraits, each with different traits.
+- **Bored Ape Yacht Club** — same idea, different art.
+- **Land plots** in metaverse projects — each plot has unique coordinates.
+- **Game items** — your sword has different stats than mine.
+- **Domain names** — `binance.eth` is one specific NFT.
+
+Anything where "which exact one" matters more than "how many" is a candidate for an NFT.
+
+## BEP-721: the original NFT standard
+
+BEP-721 (the BSC version of Ethereum's ERC-721) is the simplest NFT standard. Every NFT is unique. Every NFT has a unique `tokenId` within its contract.
+
+The interface is straightforward:
+
+| Function | What it does |
+|---|---|
+| `balanceOf(owner)` | How many NFTs the owner holds in this contract |
+| `ownerOf(tokenId)` | The current owner of a specific token |
+| `safeTransferFrom(from, to, tokenId)` | Move a specific NFT |
+| `approve(spender, tokenId)` | Authorize spender for one specific token |
+| `setApprovalForAll(operator, approved)` | Authorize spender for ALL of caller's tokens |
+| `tokenURI(tokenId)` | Get the metadata URL for a specific token |
+
+Note the difference from BEP-20 approval: instead of an amount, you approve a specific tokenId. Or you use `setApprovalForAll` to give a marketplace permission to move any NFT in the collection (similar to infinite approval — same risks).
+
+A BEP-721 contract typically has anywhere from 1 to ~10,000 tokens, though large collections do exist. Each token gets its own row in the storage mapping `_owners[tokenId] = address`.
+
+## BEP-1155: multi-token standard
+
+BEP-1155 (originally ERC-1155) is more flexible. One contract can hold many "kinds" of tokens, and each kind can be either unique or have multiple copies.
+
+Concrete example — a fantasy game might use one BEP-1155 contract to track:
+
+- Token ID 1: "Excalibur" — supply 1 (legendary sword)
+- Token ID 2: "Health Potion" — supply 50,000 (consumable, fungible)
+- Token ID 3: "Common Wooden Sword" — supply 1,000 (semi-fungible)
+- Token ID 4: "Founders Pass" — supply 100 (limited edition NFT)
+
+All in one contract. All BEP-1155.
+
+The interface adds a quantity dimension:
+
+| Function | What it does |
+|---|---|
+| `balanceOf(account, id)` | Quantity of a specific token id held by an account |
+| `safeTransferFrom(from, to, id, amount, data)` | Move some quantity of one token id |
+| `safeBatchTransferFrom(from, to, ids[], amounts[], data)` | Atomic multi-id transfer |
+
+Pros over BEP-721:
+
+- **Gas efficient** for projects with many token types — one contract instead of dozens.
+- **Batch operations** — transfer 5 different items in one transaction.
+- **Mixed semantics** — fungible and non-fungible items in one place.
+
+Cons:
+
+- Slightly more complex mental model.
+- Some marketplaces and tools have less complete BEP-1155 support.
+- Each NFT-as-unique-collectible workflow is simpler with BEP-721.
+
+## When to use which
+
+| Use case | Standard |
+|---|---|
+| 10,000 unique PFP collection | BEP-721 |
+| Game with many item types and rarities | BEP-1155 |
+| Domain names | BEP-721 |
+| Concert tickets where multiple seats use the same artwork | BEP-1155 |
+| Music album where each "edition" is a separate item | BEP-1155 |
+| Land plots | BEP-721 |
+| Loyalty badges issued in batches | BEP-1155 |
+
+If in doubt for a "art collection" use case, BEP-721 is the safe default — it's older, more universally supported, and more straightforward.
+
+## Approvals: the same drainer risk
+
+The NFT analogue of token drainers is **approve-for-all drainers**. You approve a marketplace contract to manage all your NFTs in a collection (so you can list them without per-NFT approvals). If that contract is later compromised — or if the original "marketplace" was actually a malicious clone — the attacker can transfer every NFT you own in that collection.
+
+The same defense applies as for BEP-20:
+
+- Audit your `setApprovalForAll` grants periodically (revoke.cash supports NFTs too).
+- Don't approve marketplaces you don't recognize.
+- Use a separate "trading" wallet for active NFT activity.
+
+## What this module covers
+
+The next three lessons:
+
+- **Lesson 2** — Metadata, IPFS, and royalties: where the actual image lives and how creators get paid on resales.
+- **Lesson 3** — NFT marketplaces on BSC: Element, OpenSea (BSC), Magic Eden. How listings work and what fees they charge.
+- **Lesson 4** — Mint your own NFT collection on BSC testnet using OpenZeppelin's BEP-721 implementation.
+
+By the end you'll be able to mint, list, and trade NFTs confidently on BSC — and read any NFT contract critically.

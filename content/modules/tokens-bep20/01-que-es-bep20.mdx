@@ -1,0 +1,129 @@
+---
+title: "What is BEP-20?"
+description: "The standard interface every token on BSC implements — and why standards matter."
+duration: 12
+xp: 125
+order: 1
+quiz:
+  - question: "Why does BEP-20 exist?"
+    options:
+      - text: "Marketing"
+        correct: false
+      - text: "It defines a common interface so any wallet, DEX, or explorer can interact with any compliant token without custom integration"
+        correct: true
+      - text: "It's required by law"
+        correct: false
+    explanation: "Standards are interoperability. By implementing BEP-20, a token becomes immediately usable in MetaMask, PancakeSwap, BscScan, and the rest of the ecosystem with zero custom code."
+  - question: "BEP-20 is essentially…"
+    options:
+      - text: "A copy of ERC-20 from Ethereum"
+        correct: true
+      - text: "A completely original BSC standard"
+        correct: false
+      - text: "A Layer 2 protocol"
+        correct: false
+    explanation: "BEP-20 is functionally identical to Ethereum's ERC-20. Same function signatures, same events, same semantics. The chain is different; the token interface is the same."
+  - question: "Where does a BEP-20 token's balance physically live?"
+    options:
+      - text: "In your wallet's local storage"
+        correct: false
+      - text: "In the storage of the token's smart contract on BSC"
+        correct: true
+      - text: "On Binance servers"
+        correct: false
+    explanation: "Each BEP-20 contract has internal storage mapping addresses to balances. Your wallet just queries that mapping using your address. The contract is the source of truth."
+---
+
+## Why standards exist
+
+Imagine if every car manufacturer used a different shape of gas pump nozzle. Every gas station would need 30 nozzles. New car brands would need to build their own gas stations. The whole system would seize up.
+
+That's the problem standards solve. **BEP-20** is the standard nozzle for tokens on BNB Smart Chain.
+
+A wallet like MetaMask doesn't need to know anything specific about CAKE, USDT, or your friend's brand new memecoin. It knows the **BEP-20 interface** — a small set of functions every compliant token must expose. Call those functions, get the data back, render it in the UI. Done.
+
+Same for DEXes. PancakeSwap doesn't need a custom integration with each token. If a token implements BEP-20, PancakeSwap can list it.
+
+This is also why scammers can spin up a fake "USDT" token in 5 minutes and have it appear (briefly) in wallet UIs — the standard imposes no central authority. Anyone can ship a BEP-20 contract.
+
+## BEP-20 = ERC-20 with a different name
+
+If you've seen Ethereum's **ERC-20**, BEP-20 is identical in every meaningful way:
+
+- Same function signatures (`transfer`, `approve`, `balanceOf`, etc.)
+- Same events (`Transfer`, `Approval`)
+- Same semantic behaviors
+
+Why the rename? When Binance launched BSC in 2020, they branded their token standards parallel to Ethereum's: ERC → BEP, with the chain ID prefix. Marketing more than engineering.
+
+The practical implication: tools that work with ERC-20 mostly work with BEP-20. Most Solidity smart contracts written for Ethereum can be deployed to BSC with zero changes. That's why so much of BSC's early DeFi was direct forks of Ethereum protocols.
+
+## The required functions
+
+A BEP-20-compliant contract must implement these functions:
+
+| Function | What it does |
+|---|---|
+| `name() → string` | Human-readable name (e.g. "Tether USD") |
+| `symbol() → string` | Ticker (e.g. "USDT") |
+| `decimals() → uint8` | How many decimal places to display (usually 18, USDT uses 18 on BSC, 6 on ETH — careful!) |
+| `totalSupply() → uint256` | Total tokens in existence |
+| `balanceOf(address) → uint256` | Balance of a specific address |
+| `transfer(to, amount) → bool` | Send tokens from caller to `to` |
+| `transferFrom(from, to, amount) → bool` | Send tokens *if* the caller is approved |
+| `approve(spender, amount) → bool` | Authorize `spender` to spend up to `amount` of caller's tokens |
+| `allowance(owner, spender) → uint256` | How much is `spender` still authorized to spend on behalf of `owner` |
+
+And these events (logged on-chain when state changes):
+
+| Event | When fired |
+|---|---|
+| `Transfer(from, to, value)` | Any time tokens move |
+| `Approval(owner, spender, value)` | Any time `approve` is called |
+
+That's the whole standard. Everything else — minting, burning, pausing, blacklisting, taxes, reflections — is **non-standard extensions** the contract author chose to add. We'll cover the most important ones in lesson 4.
+
+## How a token transfer actually works
+
+When you click "Send" in MetaMask for, say, 100 USDT:
+
+1. MetaMask constructs a transaction calling `USDT.transfer(recipientAddress, 100 * 10^18)`.
+2. You sign it with your private key.
+3. The transaction goes to a BSC node, gets included in a block.
+4. The validator runs the USDT contract's `transfer` function.
+5. Inside the function:
+   - Check `balances[your_address] >= 100`. If not, revert.
+   - Subtract 100 from `balances[your_address]`.
+   - Add 100 to `balances[recipientAddress]`.
+   - Emit a `Transfer(your_address, recipientAddress, 100)` event.
+6. The block finalizes. Your wallet refreshes the balance.
+
+No actual "USDT" objects move. There's just a mapping in storage that gets two entries updated. That's the entire mechanism.
+
+## decimals matters more than you think
+
+The `decimals()` value is a render-time hint. The contract internally stores everything in the smallest unit (like cents to dollars, but more granular).
+
+USDT on BSC has `decimals = 18`. So when a UI shows "100 USDT", the on-chain value is `100 × 10^18 = 100000000000000000000` (a 21-digit number).
+
+USDT on Ethereum has `decimals = 6`. So "100 USDT" on ETH is `100 × 10^6 = 100000000`.
+
+This **does not matter** for normal users — wallets do the conversion. But it matters if:
+
+- You're writing code that interacts with both versions. Don't assume 18.
+- You're sending raw transactions or interpreting BscScan logs.
+- You're comparing balances of the "same" token across chains.
+
+A common newcomer mistake: copy-pasting an amount from one chain to another and being off by 12 decimal places.
+
+## Why this is the most important module after Fundamentals
+
+Once you understand BEP-20, you understand:
+
+- How every DeFi protocol you'll use actually moves tokens
+- How approvals (and drainers, by extension) work
+- How to read a contract on BscScan
+- How to spot a scam token by reading its functions
+- How to deploy your own token (lesson 4)
+
+It's the closest thing to literacy in this ecosystem. The next lessons go deep on each of those.

@@ -1,0 +1,97 @@
+---
+title: "El ecosistema BNB en 2025"
+description: "BSC, opBNB, Greenfield — y las dApps que realmente mueven volumen hoy."
+tagline: "BSC, opBNB, Greenfield — y las dApps que realmente mueven volumen hoy."
+bullets:
+  - "Las tres capas oficiales"
+  - "TVL · volumen · usuarios diarios"
+  - "Lo que viene en el roadmap"
+duration: 12
+videoMin: 8
+readingMin: 4
+xp: 100
+order: 4
+quiz:
+  - question: "¿Qué es opBNB?"
+    options:
+      - text: "Una cadena competidora separada de BSC"
+        correct: false
+      - text: "Un Optimistic Rollup L2 construido encima de BSC"
+        correct: true
+      - text: "Un derivado de staking"
+        correct: false
+    explanation: "opBNB es un Optimistic Rollup que liquida en BNB Smart Chain. Misma EVM, fees mucho más bajos, útil para apps de alta frecuencia como juegos."
+  - question: "¿Para qué se usa BNB Greenfield?"
+    options:
+      - text: "Staking"
+        correct: false
+      - text: "Almacenamiento descentralizado de datos y control de acceso"
+        correct: true
+      - text: "Solo minteo de NFTs"
+        correct: false
+    explanation: "Greenfield es una cadena separada dedicada a almacenar datos y gestionar permisos. Piensa en ella como S3 descentralizado con políticas de acceso onchain."
+  - question: "¿Qué dApp ha dominado históricamente el volumen de DEX en BSC?"
+    options:
+      - text: "Uniswap"
+        correct: false
+      - text: "PancakeSwap"
+        correct: true
+      - text: "Curve"
+        correct: false
+    explanation: "PancakeSwap es el DEX nativo de BSC y ha sido el venue dominante para swaps y provisión de liquidez desde 2020."
+---
+
+## Tres cadenas, un ecosistema
+
+El ecosistema BNB Chain en 2025 tiene tres miembros activos. Son *cadenas separadas*, pero están diseñadas para trabajar juntas:
+
+| Cadena | Rol | ¿EVM? | Cuándo la usas |
+|---|---|---|---|
+| **BNB Smart Chain (BSC)** | Ejecución de propósito general | Sí | El 95% del tiempo |
+| **opBNB** | Optimistic Rollup L2 | Sí | Apps de alto throughput, gaming, microtransacciones |
+| **BNB Greenfield** | Almacenamiento descentralizado | No (VM propia) | Almacenar datos con permisos onchain |
+
+La mayoría de usuarios solo interactúan con BSC. opBNB y Greenfield son capas de infraestructura sobre las que apps específicas construyen.
+
+## opBNB en un párrafo
+
+Si has oído hablar de Optimism o Arbitrum en Ethereum, opBNB es la misma idea aplicada a BSC. Las transacciones se ejecutan fuera de la cadena principal en un entorno separado, luego se *empaquetan en lotes* y se publican de vuelta en BSC para seguridad. El resultado: fees en fracciones de un centavo, throughput en los miles de TPS, mientras hereda la seguridad de BSC vía pruebas de fraude.
+
+Haces bridge de activos desde BSC a opBNB para usarlo. Los casos de uso más comunes son **gaming** (donde necesitas muchas transacciones baratas por minuto) y primitivas de **trading de alta frecuencia**.
+
+Probablemente no empezarás en opBNB. Empezarás en BSC.
+
+## Greenfield en un párrafo
+
+Greenfield no es una cadena EVM — es una cadena construida ad-hoc para **almacenar archivos** y gestionar **permisos de acceso** sobre ellos. Piensa en ella como S3 descentralizado donde la política ("quién puede leer este objeto") vive onchain. Es usada por algunas apps para almacenar metadatos de NFTs, datos de usuario, o cualquier cosa que necesite almacenamiento durable con control de acceso auditable. No interactuarás con ella directamente como usuario final; las apps la abstraen.
+
+## Las dApps que de hecho vas a usar
+
+La cadena importa menos que las apps que corren sobre ella. Algunas que deberías conocer por nombre incluso antes de haberlas usado:
+
+**PancakeSwap** — el DEX dominante. Swaps spot, pools de liquidez, perpetuos, lotería, ventas de tokens pre-launch (IFOs). Cuando alguien dice "compré un token en BSC", casi siempre hicieron swap en PancakeSwap o en uno de sus forks.
+
+**Venus** — el mercado de préstamos más grande en BSC. Deposita BNB, USDT, BTCB, etc. como colateral, pide prestado contra ellos. Mismo modelo que Aave en Ethereum.
+
+**Lista DAO** — staking líquido + una stablecoin (lisUSD) respaldada por colateral. Importante si quieres yield sobre tu BNB ocioso.
+
+**Four.meme** — un launchpad de memecoins que usa bonding curves. Le dedicaremos un módulo entero a cómo funciona esta categoría.
+
+**BscScan** — no es una dApp pero es indispensable. El block explorer. Cada dirección de contrato, cada transacción, cada transferencia de token es visible ahí. Lo tendrás abierto constantemente.
+
+**Element / OpenSea (BSC)** — marketplaces de NFTs. Element es el nativo de BSC con más volumen.
+
+Esto no es una lista exhaustiva. Es el **vocabulario** que necesitas para leer la mayoría de contenido relacionado con BNB sin perderte.
+
+## Qué hacer en realidad ahora
+
+Ya tienes el mapa conceptual:
+
+- La cadena (**BSC**) y su consenso (**PoSA**)
+- El modelo de tokens (**BNB nativo** vs **BEP-20**)
+- Las capas del ecosistema (**BSC**, **opBNB**, **Greenfield**)
+- Las dApps headline (**PancakeSwap**, **Venus**, **BscScan**)
+
+Lo siguiente que aprender es **cómo mantener BNB de forma segura**. Ese es el módulo entero siguiente. No te lo saltes — los errores con wallets son por mucho la forma más común en que los recién llegados pierden dinero en BNB Chain, y casi todos son prevenibles.
+
+> La auto-custodia es una habilidad. La cadena asume que la tienes.

@@ -1,0 +1,90 @@
+---
+title: "¿Qué es DeFi?"
+description: "Finanzas descentralizadas, en lenguaje claro — y por qué BSC se volvió uno de sus hubs más grandes."
+duration: 12
+xp: 120
+order: 1
+quiz:
+  - question: "¿Qué significa \"DeFi\" exactamente?"
+    options:
+      - text: "Decentralized Finance (Finanzas Descentralizadas)"
+        correct: true
+      - text: "Default Finance"
+        correct: false
+      - text: "Defensive Finance"
+        correct: false
+    explanation: "DeFi = Decentralized Finance (Finanzas Descentralizadas). El término paraguas para servicios financieros (préstamos, swaps, derivados) corriendo en smart contracts en lugar de bancos o brokers."
+  - question: "¿Cuál es la mayor diferencia entre DeFi y un banco tradicional?"
+    options:
+      - text: "DeFi siempre es más seguro"
+        correct: false
+      - text: "DeFi no tiene sistema de permisos — cualquiera con una wallet puede interactuar con cualquier protocolo, sin aprobación de cuenta"
+        correct: true
+      - text: "Los protocolos DeFi garantizan retornos"
+        correct: false
+    explanation: "La permisionlessness es el rasgo definitorio. No hay registro, ni KYC a nivel de protocolo, ni gerente aprobando tu cuenta. Conectas una wallet y ya puedes usarlo. Ese es el poder *y* la responsabilidad."
+  - question: "¿Por qué creció DeFi tanto en BNB Chain específicamente?"
+    options:
+      - text: "BNB Chain paga a los usuarios por usarla"
+        correct: false
+      - text: "Fees más baratos y bloques más rápidos hicieron que la experimentación fuera accesible para usuarios retail excluidos por los costos de Ethereum en 2020-2021"
+        correct: true
+      - text: "BSC no tiene smart contracts"
+        correct: false
+    explanation: "Cuando los fees de gas en Ethereum llegaron a dos dígitos, muchos usuarios retail se mudaron a BSC donde los mismos patrones DeFi funcionaban a una fracción del costo. Solo PancakeSwap y Venus suman miles de millones en TVL."
+---
+
+## La propuesta en un párrafo
+
+**DeFi** es una forma de hacer las cosas que hacen los bancos — ahorrar, prestar, hacer swaps, apostar — sin el banco. En lugar de una corporación reteniendo tu dinero y decidiendo si te deja usarlo, los smart contracts retienen los fondos y ejecutan las reglas de forma transparente. Conectas una wallet, firmas una transacción, el contrato hace lo que está codificado para hacer. No hay registro, ni gerente, ni horario de oficina.
+
+Ese es el discurso de ascensor. Ahora desempaquemos qué significa en la práctica.
+
+## Las cuatro primitivas básicas
+
+Casi todo protocolo DeFi que encontrarás es alguna combinación de estos cuatro bloques de construcción:
+
+**Swaps**: cambia un token por otro al instante. El ejemplo más grande en BSC es **PancakeSwap**. El mecanismo detrás (un Automated Market Maker o AMM) es la próxima lección — pero la experiencia del usuario es: elige token A, elige token B, haz clic en swap.
+
+**Préstamos (lending y borrowing)**: deposita un token para ganar interés, o usa los depósitos como colateral para pedir prestado otros tokens. **Venus** es el ejemplo canónico en BSC. Depositas BNB, el protocolo te da un % de yield fijo. O depositas BNB y pides prestado USDT contra él.
+
+**Provisión de liquidez**: pones dos tokens en un pool que otros usan para hacer swaps, y ganas una porción de los fees. Así funcionan los AMMs por dentro — y de ahí sale buena parte del yield DeFi.
+
+**Yield farming**: combina lo anterior. Provee liquidez, recibe LP tokens, stakea esos LP tokens en una "farm" para ganar recompensas adicionales (a menudo el token de gobernanza del protocolo). A veces se les llama "money legos" porque cada capa se compone sobre la anterior.
+
+Hay un zoo entero de primitivas más exóticas — futuros perpetuos, opciones, mercados de predicción, tokenización de activos del mundo real — pero si entiendes las cuatro de arriba, puedes leer la mayoría de protocolos DeFi.
+
+## Por qué BNB Chain específicamente
+
+Ethereum fue el hogar original de DeFi. Sigue teniendo la liquidez más profunda y la innovación más activa. Pero durante la mayor parte de 2020-2021, hacer un swap de $50 en Ethereum costaba $30-100 en gas. Eso excluyó a una generación entera de usuarios retail.
+
+BNB Smart Chain ofreció la misma plataforma de smart contracts basada en Solidity con fees de swap de $0.10. El resultado fue una explosión: **PancakeSwap** se volvió el DEX más grande del mundo por número de trades, **Venus** acumuló miles de millones en TVL de préstamos, y una larga cola de yield farms y forks corrió un ciclo veloz en 2021.
+
+El costo de esa accesibilidad fue honesto:
+
+- **Más scams**. Costo de despliegue más bajo = más rugpulls. Siempre revisa auditorías y reputación del equipo.
+- **Más forks**. Muchos protocolos en BSC son copias directas de protocolos de Ethereum (PancakeSwap es en gran parte un fork de Uniswap v2/v3, Venus de Compound). Eso no es malo — mecanismos probados — pero significa que la innovación a menudo sucede primero en Ethereum.
+- **Más volatilidad en la cola larga**. Mientras menor el market cap de un token, más violentamente se mueve.
+
+Hoy BSC es una de las top 5 cadenas por TVL DeFi, junto a Ethereum, Solana, Tron y un par de L2s.
+
+## Lo que necesitas para empezar
+
+Para hacer cualquier cosa en este módulo de forma práctica, necesitas:
+
+1. Una wallet (cubierto en el módulo anterior — MetaMask en BSC sirve).
+2. Unos cuantos dólares de BNB para gas.
+3. Opcional: algunas stablecoins (USDT o USDC en BSC) para hacer swap o lending de verdad. Puedes saltar esto y quedarte en testnet para la mecánica.
+
+Si completaste el módulo de **Wallets y Seguridad**, estás listo. Si no, hazlo primero — la parte difícil de DeFi no es entenderlo, es no ser drenado mientras aprendes.
+
+## Lo que viene en este módulo
+
+- **Lección 2** — Cómo funcionan los AMMs y PancakeSwap, y por qué importa el "slippage"
+- **Lección 3** — Pools de liquidez y LP tokens: de dónde viene el yield
+- **Lección 4** — Yield farming y staking: apilando los legos
+- **Lección 5** — Los riesgos: pérdida impermanente, hacks, y cómo evaluar un protocolo antes de depositar
+
+Al final deberías ser capaz de leer la documentación de cualquier protocolo DeFi y entender qué está pasando con tu dinero.
+
+> DeFi recompensa el entendimiento. Cada dólar perdido en DeFi fue perdido por alguien que no se tomó el tiempo de leer lo que estaba firmando.

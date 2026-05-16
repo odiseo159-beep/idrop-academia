@@ -1,0 +1,162 @@
+---
+title: "NFT Marketplaces on BSC"
+description: "Element, OpenSea, Magic Eden — what each charges, where the volume actually flows."
+duration: 11
+xp: 115
+order: 3
+quiz:
+  - question: "Which has historically been the dominant NFT marketplace on BSC?"
+    options:
+      - text: "OpenSea"
+        correct: false
+      - text: "Element Market"
+        correct: true
+      - text: "Blur"
+        correct: false
+    explanation: "Element grew up around BSC and has consistently held the largest BSC NFT volume. OpenSea added BSC support later and has lower volume share there than on Ethereum."
+  - question: "What is a marketplace fee typically charged on?"
+    options:
+      - text: "The minting cost"
+        correct: false
+      - text: "Each successful sale, as a percentage of the sale price (commonly 0.5-2.5%) — separate from any royalty paid to the creator"
+        correct: true
+      - text: "The image upload"
+        correct: false
+    explanation: "Marketplaces charge a take rate per sale. Element and OpenSea both default around 2-2.5% on BSC; some niche marketplaces go as low as 0% to attract volume. Royalties to the creator are on top of (or sometimes negotiated against) this fee."
+  - question: "What's the difference between a \"floor\" and a \"top bid\" on a collection?"
+    options:
+      - text: "Same thing"
+        correct: false
+      - text: "Floor = lowest active listing price (instant-buy); top bid = highest active offer to buy (instant-sell). Floor is usually higher than top bid."
+        correct: true
+      - text: "Top bid is always higher"
+        correct: false
+    explanation: "Floor is the cheapest you can buy at right now. Top bid is the best price someone has committed to buy at. The spread between them is the marketplace's bid-ask gap. Wider spread = lower liquidity."
+---
+
+## The major BSC NFT venues
+
+Three marketplaces handle the bulk of BSC NFT activity:
+
+### Element Market (`element.market`)
+
+- **History**: BSC-native marketplace launched in 2021. Multi-chain (also on ETH, Polygon, Solana via Magic Eden).
+- **Volume**: consistently the highest BSC NFT volume.
+- **Fee structure**: typically 2% take rate, royalties as set by collection.
+- **Strengths**: Best BSC collection coverage, decent UX, native trait filtering.
+- **Weaknesses**: less polished than OpenSea on Ethereum; some collections have shallow liquidity.
+
+### OpenSea (`opensea.io`) — BSC support
+
+- **History**: original Ethereum NFT marketplace, added BSC support in 2022.
+- **Volume**: lower BSC share than Element, but the brand recognition pulls in occasional cross-chain users.
+- **Fee structure**: 2.5% standard; royalties have varied (currently honors EIP-2981 on most chains).
+- **Strengths**: brand trust, polished UX, trait/rarity tooling.
+- **Weaknesses**: smaller BSC collection inventory; some BSC features lag the Ethereum experience.
+
+### Magic Eden (`magiceden.io`) — multi-chain
+
+- **History**: Solana-native marketplace, expanded to BSC and others.
+- **Volume**: small on BSC compared to Element.
+- **Strengths**: cross-chain UX, particularly strong if you also operate on Solana.
+
+For BSC-specific activity, **Element is your default**. OpenSea is worth checking for specific collections it supports. Magic Eden if you're already there.
+
+## How a typical purchase works
+
+The mechanics are similar across marketplaces. Here's the buy flow on Element:
+
+1. Find a collection (e.g. by browsing or via direct URL).
+2. Filter by trait, price range, etc. The "Items" tab shows live listings.
+3. Click an item → see its trait breakdown, price history, ownership history.
+4. Click **Buy Now**.
+5. MetaMask popup: review the transaction. The fee breakdown will show:
+   - Item price (paid to seller)
+   - Marketplace fee (paid to Element)
+   - Creator royalty (paid to original creator, per EIP-2981)
+   - Gas (paid to BSC validators)
+6. Confirm. Within seconds, the NFT is in your wallet and the seller's wallet receives the proceeds (minus fees and royalty).
+
+If the price is in BNB, your wallet just needs BNB plus gas. If priced in WBNB or another token, you'll need that token plus a BNB balance for gas.
+
+## Listing your NFT for sale
+
+The reverse flow:
+
+1. Open the NFT in your wallet on the marketplace.
+2. Click **List for sale**.
+3. Choose:
+   - Price (in BNB, WBNB, or USDT depending on marketplace support)
+   - Listing duration (3 days, 7 days, 30 days, etc.)
+   - Optional: split listing or auction (less common)
+4. **First time only per collection**: you sign a `setApprovalForAll` transaction granting the marketplace permission to transfer NFTs from this collection. This is one-time per collection per marketplace.
+5. Sign the listing itself — this is usually an off-chain signature, not a transaction (so it's free, no gas).
+
+When someone buys, the marketplace contract transfers the NFT from your wallet to the buyer using the approval you granted earlier.
+
+> **Critical**: the `setApprovalForAll` you sign is the trust point. If the marketplace contract is ever exploited, that approval lets the attacker move your NFTs. Audit your approvals at revoke.cash regularly.
+
+## Bids vs listings: two ways to trade
+
+A **listing** is a seller saying "I'll sell this specific token for X." Anyone can fill it instantly.
+
+A **bid** (sometimes called an "offer") is a buyer saying "I'll buy this specific token (or any token in this collection) for X." The seller can choose to accept any bid that meets their price.
+
+There are two flavors of bids:
+
+- **Item-specific bid**: I'll buy *this exact token #5621* for 5 BNB.
+- **Collection bid (or "trait bid")**: I'll buy *any* token in this collection (or matching specific traits) for 4 BNB. Whoever wants to sell into the bid first gets the deal.
+
+For collectors hunting deals: collection bids are how you get the floor without paying premium for traits you don't care about.
+
+For sellers: accepting bids gives you flexibility on timing — list, walk away, accept a bid when one shows up.
+
+## Fees, summarized
+
+The cumulative cost of selling an NFT is:
+
+```
+Sale price - marketplace fee - creator royalty - gas to fulfill
+= net to seller
+```
+
+A typical breakdown for a 1 BNB sale on Element with 5% creator royalty:
+
+- 1.00 BNB sale
+- −0.02 BNB Element fee (2%)
+- −0.05 BNB creator royalty
+- −~0.0005 BNB gas
+- = ~0.93 BNB to seller
+
+For buyers, the displayed price typically excludes gas, so add ~$0.10-1 worth of BNB to whatever the listing says.
+
+## Floor, top bid, and reading a collection
+
+Three numbers tell you most of what you need to know about a collection's market state:
+
+- **Floor**: lowest current listing price. The "I want one now" price.
+- **Top bid**: highest standing offer. The "I want to dump now" price.
+- **24h volume**: how much actually changed hands recently.
+
+If the spread between floor and top bid is wide (e.g. floor 5 BNB, top bid 1 BNB), the collection has shallow liquidity — you can't easily exit at floor.
+
+If 24h volume is near zero relative to listed supply, similar story: nominal floor exists but no one is buying.
+
+For PFP-style collections, also look at:
+
+- **Floor by trait**: rarer trait combinations have higher floors.
+- **Listed ratio**: % of collection currently listed for sale. Higher = more selling pressure.
+
+## A practical buying workflow
+
+When you've identified a collection you want to participate in:
+
+1. **Read the project's docs and Twitter**. Understand what you're buying conceptually.
+2. **Check the contract on BscScan**. Verified? Owner renounced? Mint capped?
+3. **Look at the collection page on Element**. Floor, top bid, 24h volume, total supply.
+4. **Check active listings**. Filter by traits you care about. Compare prices.
+5. **Look at recent sales** (last 50 transactions). Does the floor reflect what's actually transacting, or is it stale?
+6. **Set a max price you're willing to pay**. Don't chase. Enter via listing or via your own bid.
+7. **Buy with a fresh wallet** if you're particularly cautious about approvals.
+
+That's it for marketplaces. The next lesson — the last in this module — walks through minting your own collection on BSC testnet.

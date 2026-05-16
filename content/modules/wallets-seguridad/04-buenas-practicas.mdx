@@ -1,0 +1,113 @@
+---
+title: "Operational Security Habits"
+description: "The routine experienced users follow to stay safe over years, not weeks."
+duration: 11
+xp: 115
+order: 4
+quiz:
+  - question: "Why use a hardware wallet?"
+    options:
+      - text: "It's faster than MetaMask"
+        correct: false
+      - text: "The private key never leaves the device, so even a compromised computer can't sign without your physical confirmation"
+        correct: true
+      - text: "It earns more yield"
+        correct: false
+    explanation: "The cryptographic signing happens inside the secure element of the hardware device. Malware on your computer can request signatures, but the device requires physical button presses to confirm them — and shows you what you're signing on its own screen."
+  - question: "What is wallet compartmentalization?"
+    options:
+      - text: "Using one wallet for everything"
+        correct: false
+      - text: "Splitting funds across separate wallets by purpose (savings, daily use, experimental)"
+        correct: true
+      - text: "Encrypting your seed phrase twice"
+        correct: false
+    explanation: "If your experimental wallet gets drained, your savings wallet is untouched because it has separate keys. Compartmentalization limits the blast radius of any single mistake."
+  - question: "Which tool helps you audit and revoke risky approvals?"
+    options:
+      - text: "BscScan token tracker"
+        correct: false
+      - text: "revoke.cash"
+        correct: true
+      - text: "MetaMask Portfolio"
+        correct: false
+    explanation: "revoke.cash shows every spending approval your address has ever granted, with one-click revoke. Worth running every couple of months."
+---
+
+## A simple, durable security routine
+
+You don't need a paranoid setup. You need a *consistent* one. Here's a routine experienced users converge on. Adapt the threshold values to your own situation.
+
+### Tier the wallets
+
+Use at least two, ideally three, separate wallets:
+
+| Wallet | Backed by | Holds | Use for |
+|---|---|---|---|
+| **Cold / Vault** | Hardware wallet (Ledger, Trezor) | Long-term holdings, anything you'd be devastated to lose | Receiving from exchanges, long-term storage. Rarely connect to dApps. |
+| **Hot / Daily** | MetaMask, Rabby, etc. | Working balance for routine activity | Swaps on PancakeSwap, lending on Venus, anything you've used before. |
+| **Burner** | Fresh MetaMask account | Tiny balance, refreshed often | Trying new dApps, claiming airdrops, anything experimental. |
+
+Each tier has its own seed (well, the hot/burner can be different accounts under the same seed — but consider separate seeds for true isolation). The whole point is that a compromise of the burner can never reach the vault.
+
+### Back up the seed properly
+
+For the cold wallet:
+
+- **Pen and paper** for the immediate backup, stored somewhere only you can access. Not your desk drawer.
+- **Steel backup** (Cryptosteel, Billfodl, or DIY washer plates) for fire/water resistance once the holdings justify the cost (~$50-100).
+- **Geographic separation** if you're holding life-changing amounts: two copies in two different physical locations.
+
+Never:
+
+- Photograph the seed.
+- Type the seed into any device that's online except the wallet that produced it.
+- Store the seed digitally without strong, offline encryption (and even then, the encrypted file is a target).
+
+### Use a hardware wallet for meaningful value
+
+The "meaningful value" threshold is personal. For most people, anything above what you'd lose without complaining warrants hardware. Two reasons:
+
+- **Phishing-resistant signing**: even on a fully compromised computer, you cannot sign a transaction without physically pressing buttons on the device. The device shows the destination address and amount on its own screen — you verify against that, not your monitor.
+- **Cold storage**: the hardware wallet can hold the seed indefinitely without ever connecting to the internet. The signing operations happen on demand.
+
+A Ledger or Trezor costs roughly $80 retail. Buy directly from the manufacturer's website, not Amazon (supply chain attacks have happened). Set it up yourself; never use a "pre-configured" device.
+
+### Read every popup
+
+This is the discipline most people drop after a few weeks of using web3.
+
+Every MetaMask popup that asks you to sign something has, somewhere, a "function" being called. Common ones:
+
+- **`transfer` / `transferFrom`**: actually moving tokens. Should match what you intended.
+- **`approve` / `permit`**: granting a contract permission to spend your tokens. Pay attention to *which* contract and *what amount*. Unlimited approvals on stablecoins are a long-standing risk.
+- **`swap`**: routine for DEX activity.
+- **An opaque hex blob**: this is a custom contract call. If you can't read it and don't trust the dApp, don't sign.
+
+If the popup looks unusual for what the website claims you're doing, **stop and check**. A 30-second pause has saved more wallets than any tool.
+
+### Use simulation tools
+
+Browser extensions like **Pocket Universe**, **Wallet Guard**, or **Blockaid** (built into Rabby and rolling out in MetaMask) intercept transactions and show you a plain-language preview of the *outcome*: "After this transaction, your balance will be: -1.0 BNB, -50 USDT, +0 of anything." If the preview reveals an unexpected outflow, you have a clear cancel signal.
+
+This is the single highest-leverage tool against drainers in 2025.
+
+### Audit approvals periodically
+
+Every couple of months, visit **revoke.cash** with your hot wallet connected. Look at what addresses have spending power over your tokens. Anything you don't actively use — revoke. The revocation transaction costs gas, but a stale approval to a forgotten contract is a permanent attack surface.
+
+### Have a recovery plan
+
+Ask yourself, calmly, before anything happens:
+
+- If my phone disappeared right now, can I recover my hot wallet from a different device using my seed?
+- If I were incapacitated, would someone I trust be able to recover the cold wallet, and is that the right outcome for them?
+- Where are my seed backups, exactly? Could I describe their locations to my own future self if my memory failed?
+
+These aren't morbid — they're operational. A wallet you can't recover is functionally identical to a wallet that's been stolen.
+
+## You're now beyond the danger zone
+
+Most onchain newcomers lose money in the first six months because they didn't know any of this. You now do. The amount of risk you take from here on is a function of your own choices — which is the right place to be.
+
+You're ready for the actual interesting parts of the chain: **DeFi**, **tokens**, **NFTs**, and how launchpads work. Those are the next modules.

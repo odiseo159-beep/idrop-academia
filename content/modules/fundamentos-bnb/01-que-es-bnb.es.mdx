@@ -1,0 +1,94 @@
+---
+title: "¿Qué es BNB Chain, en realidad?"
+description: "De token de exchange a ecosistema multi-cadena — la versión corta, sin marketing."
+tagline: "De token de exchange a ecosistema multi-cadena — la versión corta, sin marketing."
+bullets:
+  - "BNB el token vs. BNB la cadena"
+  - "Beacon Chain → BSC → hoy"
+  - "Por qué Binance lanzó una EVM"
+duration: 10
+videoMin: 7
+readingMin: 3
+xp: 100
+order: 1
+videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ"
+videoDurationSec: 754
+videoChapters:
+  - time: "0:00"
+    title: "Introducción"
+  - time: "1:42"
+    title: "Dos cadenas, una historia"
+  - time: "4:15"
+    title: "Cómo funciona PoSA"
+  - time: "7:48"
+    title: "El rol de los validadores"
+  - time: "10:36"
+    title: "Conclusión · próxima lección"
+quiz:
+  - question: "¿Qué significa originalmente \"BNB\"?"
+    options:
+      - text: "Build N Build"
+        correct: true
+      - text: "Binance Network"
+        correct: false
+      - text: "Blockchain Native Bridge"
+        correct: false
+    explanation: "BNB se rebautizó como \"Build N Build\" cuando el ecosistema de la cadena se desacopló del exchange en 2022. Antes significaba Binance Coin."
+  - question: "Hoy, cuando alguien dice \"BNB Chain\" sin más contexto, normalmente se refiere a…"
+    options:
+      - text: "BNB Beacon Chain"
+        correct: false
+      - text: "BNB Smart Chain (BSC)"
+        correct: true
+      - text: "opBNB"
+        correct: false
+    explanation: "BNB Smart Chain es la cadena compatible con EVM donde viven casi todas las dApps. La Beacon Chain fue retirada en 2024."
+  - question: "¿Cuál de estos NO es un miembro actual del ecosistema BNB Chain?"
+    options:
+      - text: "BNB Smart Chain"
+        correct: false
+      - text: "opBNB"
+        correct: false
+      - text: "BNB Greenfield"
+        correct: false
+      - text: "BNB Beacon Chain"
+        correct: true
+    explanation: "BNB Beacon Chain fue retirada en 2024 (BEP-333). El staking y la gobernanza se movieron a BSC. Smart Chain, opBNB y Greenfield son los tres miembros activos hoy."
+---
+
+## Una historia de 60 segundos
+
+La cadena que hoy llamamos **BNB Chain** empezó en 2017 como **Binance Coin** — un simple token ERC-20 en Ethereum usado para pagar fees en el exchange Binance. Eso era todo. Sin cadena, sin smart contracts, sin DeFi.
+
+Las cosas se movieron rápido:
+
+- **2019** — Binance lanzó su propia cadena, **Binance Chain**, enfocada en un solo caso de uso: un exchange descentralizado. Era rápida pero no soportaba smart contracts.
+- **2020** — Lanzaron una segunda cadena en paralelo llamada **Binance Smart Chain (BSC)** que *sí* soportaba smart contracts y era compatible con el tooling de Ethereum. De repente DeFi explotó sobre ella.
+- **2022** — El ecosistema entero se rebautizó. "Binance Coin" pasó a ser **Build N Build (BNB)**. Las dos cadenas se convirtieron en **BNB Beacon Chain** (la original) y **BNB Smart Chain** (la EVM). El paraguas se llama **BNB Chain**.
+- **2024** — La Beacon Chain original fue oficialmente retirada. El staking y la gobernanza se movieron on-chain a BSC. El ecosistema también añadió **opBNB** (un L2 rollup) y **BNB Greenfield** (almacenamiento descentralizado).
+
+Así que cuando alguien dice "BNB Chain" hoy sin más contexto, casi siempre se refiere a **BNB Smart Chain**.
+
+## ¿Qué hace en realidad?
+
+BNB Smart Chain es una **blockchain de propósito general compatible con EVM**. Dos frases ahí importan:
+
+**Propósito general**: cualquiera puede desplegar un smart contract en ella. Hay un DEX (PancakeSwap), hay protocolos de préstamo (Venus, Kinza), hay marketplaces de NFTs, hay juegos, hay memecoins. A la cadena no le importa qué construyas.
+
+**Compatible con EVM**: habla el mismo lenguaje que Ethereum. El mismo código Solidity, las mismas wallets (MetaMask, Rabby, etc.), los mismos estándares (ERC-20 se vuelve BEP-20, ERC-721 se vuelve BEP-721). Si has usado Ethereum, el mapa mental se transfiere casi 1:1.
+
+Las dos grandes diferencias con Ethereum son **fees** y **velocidad**: las transacciones en BSC típicamente cuestan unos centavos y se confirman en alrededor de un segundo. Ese es el trade-off que hace la cadena — menos validadores (más sobre eso en la próxima lección) a cambio de bloques más baratos y rápidos.
+
+## Por qué esto importa para el resto de la academia
+
+Casi todo lo que harás en BNB Chain en este curso — conectar una wallet, hacer un swap de un token, leer un contrato en BscScan, evaluar una memecoin — sucede en **BSC específicamente**. opBNB y Greenfield son interesantes pero no es donde empiezas.
+
+Mantén este mapa en tu cabeza:
+
+> **BNB** = el token
+> **BNB Chain** = el ecosistema
+> **BNB Smart Chain (BSC)** = la cadena EVM que usarás el 95% del tiempo
+> **opBNB** = un L2 rollup encima de BSC, aún más barato
+> **BNB Greenfield** = una cadena separada para almacenamiento descentralizado
+
+Si recuerdas solo eso, ya estás por delante de la mayoría que escribe sobre esto en Twitter.

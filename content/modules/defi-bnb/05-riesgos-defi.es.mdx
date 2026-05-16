@@ -1,0 +1,155 @@
+---
+title: "Riesgos en DeFi: IL, Hacks y Due Diligence"
+description: "Las cuatro categorías de pérdida — y cómo los LPs experimentados evalúan un protocolo antes de depositar."
+duration: 13
+xp: 120
+order: 5
+quiz:
+  - question: "La pérdida impermanente es \"impermanente\" porque…"
+    options:
+      - text: "Siempre desaparece con el tiempo"
+        correct: false
+      - text: "Solo se vuelve permanente (realizada) cuando retiras — si los precios vuelven al punto de entrada, la pérdida desaparece"
+        correct: true
+      - text: "Es deducible de impuestos"
+        correct: false
+    explanation: "Si la relación de precio de los dos tokens regresa a donde estaba cuando depositaste, tu IL es cero. Retira antes de que eso pase, y la pérdida en papel se realiza. \"Impermanente\" es engañoso — mucha gente termina tomando pérdidas permanentes."
+  - question: "Una auditoría por una firma respetable significa que un protocolo está…"
+    options:
+      - text: "Garantizado seguro"
+        correct: false
+      - text: "Más probable que haya capturado bugs comunes, pero NO inmune a errores lógicos, manipulación de oráculos, o nuevos vectores de ataque"
+        correct: true
+      - text: "Asegurado contra pérdidas"
+        correct: false
+    explanation: "Las auditorías reducen significativamente el riesgo pero no lo eliminan. Muchos hacks DeFi de alto perfil le han sucedido a protocolos auditados. Trata las auditorías como una señal entre varias, no como una garantía."
+  - question: "¿Cuál de estas es una señal negativa fuerte al evaluar un nuevo protocolo DeFi?"
+    options:
+      - text: "Código open-source en GitHub"
+        correct: false
+      - text: "Equipo anónimo + sin auditoría + APRs 100x más altos que la competencia"
+        correct: true
+      - text: "Documentación en múltiples idiomas"
+        correct: false
+    explanation: "Equipos anónimos no siempre son malos (muchos grandes protocolos empezaron anon), pero combinado con sin auditoría Y yields desproporcionados, estás viendo el perfil de riesgo de un probable rugpull. Cada señal sola es amarilla; juntas son rojas."
+---
+
+## Las cuatro formas de perder dinero en DeFi
+
+Cada dólar perdido en DeFi cae en uno de estos cubos:
+
+1. **Pérdida impermanente / acción de precio**: los activos que mantenías bajaron, o tu posición LP rindió peor que solo holdear.
+2. **Exploits de smart contract**: un bug o falla de diseño le permite a un atacante drenar el protocolo.
+3. **Errores operacionales**: red equivocada, contrato de token equivocado, aprobaciones maliciosas — el módulo anterior entero.
+4. **Rug pulls**: el equipo intencionalmente sale con los fondos de los usuarios.
+
+Cada uno tiene mitigaciones distintas. Pasemos por ellos.
+
+## Pérdida impermanente con números reales
+
+Rehagamos el ejemplo de la lección 3 con más cuidado.
+
+Depositas en un pool CAKE/BNB cuando:
+- 1 CAKE = $2
+- 1 BNB = $600
+- Depositas 100 CAKE + 0.333 BNB = $400 total
+
+Ahora considera tres escenarios de precio después de un mes:
+
+**Escenario A — ambos sin cambio**:
+Composición del pool para tu porción: aún 100 CAKE + 0.333 BNB. Valor: $400. **IL: $0**.
+
+**Escenario B — CAKE duplica, BNB sin cambio** (CAKE = $4, BNB = $600):
+El AMM rebalancea vendiendo algo de tu CAKE por BNB.
+Tu porción se vuelve ~70.7 CAKE + 0.471 BNB = ~$565.
+Holdeando en su lugar: 100 CAKE × $4 + 0.333 BNB × $600 = $600.
+**IL: -$35 (-5.7%)**.
+
+**Escenario C — CAKE va a cero**:
+Los arbitrageurs drenan BNB del pool comprando CAKE todo el camino hacia abajo. Tu porción es ahora ~todo CAKE, vale $0.
+Holdeando en su lugar: 100 CAKE × $0 + 0.333 BNB × $600 = $200.
+**IL: -$200 (catastrófico)**.
+
+La asimetría es la lección: **IL duele más cuando un activo se mueve dramáticamente contra ti en la dirección equivocada**. Para pares volátiles, el IL puede empequeñecer los fees que ganas.
+
+Para pares estables (USDT/USDC), el IL es esencialmente cero porque los precios apenas se desvían. Por eso los pools estables dominan el capital LP institucional grande.
+
+La heurística simple:
+
+> **Mientras más correlacionados los dos tokens, menor tu riesgo de IL.**
+
+CAKE/BNB tiene baja correlación (tokens distintos, drivers distintos). USDT/USDC tiene correlación muy alta (ambos peggeados a $1). BTCB/WBTC tienen correlación casi perfecta (ambos versiones envueltas de BTC).
+
+## Exploits de smart contract
+
+Estas son las pérdidas titulares de $100M+ que lees. Categorías:
+
+- **Bugs lógicos**: el contrato hace algo que los desarrolladores no pretendían. (Ejemplo: no validar un price feed, permitiendo manipulación.)
+- **Reentrancy**: un atacante llama recursivamente al contrato antes de que pueda actualizar el estado, drenando fondos. Menos común hoy pero históricamente devastador.
+- **Manipulación de oráculo**: protocolos que ponen precio a activos basándose en precios spot de DEX pueden ser engañados por manipulación de precio financiada con flash loans.
+- **Exploits de bridges cross-chain**: los bridges mantienen cantidades enormes de activos bloqueados y han sido repetidamente los objetivos individuales más grandes.
+- **Ataques de gobernanza**: un atacante acumula suficientes tokens de gobernanza para votar cambios maliciosos.
+
+No hay defensa infalible contra estos. Mitigaciones:
+
+- **Protocolos probados en el tiempo**. Un protocolo que ha mantenido >$100M durante >2 años sin un exploit ha sido más rigurosamente probado en batalla de lo que cualquier auditoría puede simular.
+- **Múltiples auditorías de firmas respetables**. CertiK, Trail of Bits, OpenZeppelin, Quantstamp. Una auditoría está OK; múltiples de diferentes firmas es mejor.
+- **Programas activos de bug bounty**. Bounties listados en Immunefi de $100k-$10M señalan que el equipo toma en serio la seguridad.
+- **Diversificación**. No pongas toda tu exposición DeFi en un solo protocolo sin importar qué tan confiable parezca.
+
+## Errores operacionales
+
+Ya cubierto en el módulo de Wallets. Refresco rápido:
+
+- Verifica los contratos de tokens en BscScan antes de hacer swap. Muchos listados de "USDT" en PancakeSwap son tokens scam con el mismo nombre.
+- Lee cada popup de aprobación. Pon límites de gasto exactamente a lo que necesitas en lugar de infinito.
+- Usa una wallet "DeFi" separada de tus ahorros.
+- Audita tus aprobaciones en revoke.cash periódicamente.
+
+## Rug pulls
+
+Un rug pull es cuando el equipo o un actor malicioso sale con los fondos de los usuarios. Variantes:
+
+- **Rug de liquidez**: el equipo es el único LP. Retiran su LP, llevando el pool a cero. Tus tokens son ahora invendibles.
+- **Rug de mint**: el contrato tiene una función mint oculta que el dueño usa para inflar el suministro, vender y dumpear.
+- **Honeypot**: el contrato te permite comprar pero revierte en ventas. Nunca puedes salir.
+- **Rug lento**: el equipo gradualmente vende su asignación a lo largo de meses, lentamente hundiendo el precio mientras pretende que nada pasa.
+
+Banderas rojas que combinadas indican riesgo de rug:
+
+- **Equipo anónimo** sin track record (muchos proyectos legítimos empiezan anon — pero combinado con el resto, suma).
+- **Sin auditoría**, o auditoría de una firma desconocida.
+- **Sin cap de mint** o **el dueño puede mintear libremente** (verifica en BscScan: read contract → busca mint, transferOwnership, blacklist).
+- **Liquidez bloqueada ≠ justo**. Muchos LP "bloqueados" están bloqueados por 1 mes, no 1 año. Verifica la duración del lock.
+- **APRs absurdamente más altos que la competencia** sin razón obvia.
+- **Pumping en Twitter con bot followers**, shilling de influencers pagados, sin producto real.
+
+Si aplican 3+ de estos, trátalo como apuesta de casino, no inversión.
+
+## Una checklist repetible de due diligence
+
+Antes de depositar cualquier monto significativo en un nuevo protocolo DeFi:
+
+1. **Lee la documentación**. Si el protocolo no puede explicar lo que hace en lenguaje claro, salta.
+2. **Revisa los reportes de auditoría** linkeados desde fuentes oficiales. Echa un ojo a hallazgos altos/críticos y cómo fueron resueltos.
+3. **Revisa el historial de TVL** en DefiLlama. TVL sostenido > $10M durante >6 meses es significativo.
+4. **Mira el contrato en BscScan**. ¿Source verificado? ¿Dirección del dueño? ¿Cambios recientes? ¿Funciones inusuales?
+5. **Busca "[nombre protocolo] hack" y "[nombre protocolo] rug"** en Twitter y Discord. Si encuentras drama, léelo.
+6. **Prueba con un monto pequeño primero**. Deposita $50, retíralo. Si los retiros funcionan limpiamente, escala gradualmente.
+7. **Establece una política de stop-loss**. Sabe de antemano qué te haría salir (caída de TVL > 30%, cambio de gobernanza, etc.) y síguela.
+
+Este es trabajo aburrido y lento. Pero "aburrido y lento" es como la gente que sobrevive en DeFi de hecho hace retornos a lo largo de años.
+
+## Qué sigue
+
+Ya completaste el módulo DeFi en BNB Chain:
+
+- ✅ Qué es DeFi y por qué BSC
+- ✅ Mecánica de AMMs y PancakeSwap
+- ✅ Pools de liquidez y LP tokens
+- ✅ Yield farming y APR vs APY
+- ✅ Riesgos y due diligence
+
+Los próximos módulos cubren **tokens BEP-20** (los contratos detrás de cada token en BSC), **NFTs en BNB Chain**, y **Memecoins y Launchpads** — incluyendo cómo funcionan realmente los bonding curves de Four.meme.
+
+> Los protocolos DeFi que estarán aquí en 5 años no son los con los APRs más altos de hoy. Son los con el código más aburrido, mejor auditado y probado en el tiempo. Elige aburrido.

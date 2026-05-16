@@ -1,0 +1,97 @@
+---
+title: "Anatomía de una Wallet"
+description: "Qué es realmente una wallet — y qué no es."
+duration: 12
+xp: 110
+order: 1
+quiz:
+  - question: "¿Dónde viven en realidad tus tokens?"
+    options:
+      - text: "Dentro de la app de wallet en tu teléfono"
+        correct: false
+      - text: "En la blockchain — tu wallet solo guarda las llaves para acceder a ellos"
+        correct: true
+      - text: "En una base de datos controlada por el proveedor de la wallet"
+        correct: false
+    explanation: "Los tokens viven en la cadena. Una wallet es un gestor de llaves que demuestra a la cadena que tú controlas la dirección a la que esos tokens están asignados."
+  - question: "¿Cuál es la relación entre una llave privada y una dirección?"
+    options:
+      - text: "Son lo mismo"
+        correct: false
+      - text: "La dirección se deriva de la llave privada, pero la llave privada no se puede derivar de la dirección"
+        correct: true
+      - text: "La dirección se genera aleatoriamente y no está relacionada"
+        correct: false
+    explanation: "Una dirección es un hash unidireccional derivado de la llave pública, que a su vez se deriva de la llave privada. Puedes ir privada → pública → dirección, nunca al revés."
+  - question: "¿Qué es una EOA (Externally Owned Account)?"
+    options:
+      - text: "Una cuenta controlada por una llave privada — lo que MetaMask te da por defecto"
+        correct: true
+      - text: "Un smart contract que mantiene fondos"
+        correct: false
+      - text: "Una cuenta de exchange"
+        correct: false
+    explanation: "EOA = Externally Owned Account = una dirección de wallet regular controlada por una llave privada. La otra categoría son las cuentas de contrato, controladas por código."
+---
+
+## Una wallet no es donde vive tu dinero
+
+Esta es la frase más importante de este módulo:
+
+> Tus tokens viven en la **blockchain**. Tu wallet solo guarda las **llaves** que demuestran que tú los controlas.
+
+Si tu teléfono se cae al océano, tus tokens siguen en la cadena. Si puedes recuperar tu **seed phrase**, puedes instalar cualquier wallet compatible en cualquier dispositivo, restaurar las mismas llaves, y acceder a los mismos tokens. La wallet es una herramienta. Las llaves son el activo.
+
+Esto suena obvio, pero un porcentaje enorme de errores de recién llegados — tickets de soporte como *"desinstalé MetaMask, ¿perdí mi BNB?"* — vienen de mezclar la wallet (la app) con las llaves (el secreto).
+
+## Llaves, direcciones, y cómo se relacionan
+
+Cada wallet en BNB Chain (y Ethereum, y muchas otras) está construida sobre la misma primitiva criptográfica: un **par de llaves de curva elíptica** llamado secp256k1.
+
+Tres cosas están involucradas, en este orden:
+
+1. **Llave privada** — un número aleatorio de 256 bits. El secreto. Si alguien la aprende, puede mover tus fondos.
+2. **Llave pública** — derivada de la llave privada por matemática de curva elíptica. Segura para compartir.
+3. **Dirección** — los últimos 20 bytes del hash keccak256 de la llave pública. Esto es lo que se ve como `0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb1`. Segura para compartir públicamente.
+
+La matemática es unidireccional: desde una llave privada siempre puedes derivar la llave pública y la dirección. Desde una dirección, derivar la llave privada es computacionalmente inviable — eso es lo que hace que el sistema funcione.
+
+Una transacción firmada es solo un mensaje ("envía 1 BNB de 0xABC a 0xDEF") combinado con una firma criptográfica producida por la llave privada. Cualquiera puede verificar la firma usando la llave pública, lo que prueba que el dueño de la llave privada autorizó el mensaje.
+
+## Seed phrase: la llave maestra
+
+Normalmente no respaldas una sola llave privada — respaldas una **seed phrase** (también llamada *mnemónica* o *frase de recuperación*). Se ve así:
+
+```
+witch collapse practice feed shame open despair creek road again ice least
+```
+
+Son 12 palabras de un diccionario fijo de 2048 palabras. A veces 24 palabras. El estándar se llama **BIP-39**.
+
+A partir de esas 12 palabras puedes derivar de forma determinista un número efectivamente ilimitado de llaves privadas. Así que una seed phrase respalda tu "Account 1", "Account 2", "Account 3" en MetaMask — todas se derivan de esa única seed usando un derivation path.
+
+Consecuencias prácticas:
+
+- **Pierdes tu seed phrase → pierdes el acceso a cada cuenta derivada de ella.** Nadie puede ayudarte. No hay línea de soporte.
+- **Cualquiera que aprenda tu seed phrase tiene control total de cada cuenta derivada de ella.** Pueden drenarlo todo en segundos.
+
+Por esto la seed phrase es *la* cosa que proteges. Tu antivirus no te salvará. Tu banco no te salvará. A la cadena no le importa.
+
+## EOA vs Cuenta de Contrato
+
+Cuando creas una wallet en MetaMask, obtienes una **Externally Owned Account (EOA)** — una dirección controlada por una llave privada. Eso es el default y lo que tiene el 99% de los usuarios.
+
+El otro tipo es una **cuenta de contrato** — una dirección controlada por código de smart contract en lugar de una llave privada. Las **smart wallets** (también llamadas wallets con account abstraction) como Safe, Argent o Biconomy caen en esta categoría. Pueden hacer cosas que las EOAs no pueden: múltiples firmantes, límites de gasto, recuperación social. Pero son un tema más avanzado.
+
+Para BNB Chain en 2025, empieza con una EOA. Puedes graduarte a smart wallets más tarde cuando tengas más valor en juego o requisitos específicos.
+
+## Lo que en realidad llevas
+
+Después de todo esto, este es el modelo mental:
+
+- **Dirección (`0x...`)** — tu identidad pública. Comparte libremente.
+- **Llave privada / Seed phrase** — el secreto. No compartas con nadie. Nunca.
+- **App de wallet (MetaMask, Rabby, Trust)** — un gestor de llaves + UI. Reemplazable.
+- **Tokens** — entradas en la blockchain apuntando a tu dirección. No los "guardas".
+
+Si internalizas eso, las próximas lecciones (que se vuelven progresivamente más prácticas) te aterrizarán mucho más firmemente. A continuación: poner MetaMask en BNB Chain paso a paso de verdad.

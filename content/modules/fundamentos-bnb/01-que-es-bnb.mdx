@@ -1,0 +1,74 @@
+---
+title: "What is BNB Chain?"
+description: "From an exchange token to a multi-chain ecosystem — the short version."
+duration: 10
+xp: 100
+order: 1
+quiz:
+  - question: "What does \"BNB\" originally stand for?"
+    options:
+      - text: "Build N Build"
+        correct: true
+      - text: "Binance Network"
+        correct: false
+      - text: "Blockchain Native Bridge"
+        correct: false
+    explanation: "BNB was rebranded to \"Build N Build\" when the chain ecosystem was decoupled from the exchange in 2022. It used to mean Binance Coin."
+  - question: "Today, when someone says \"BNB Chain\" without more context, they usually mean…"
+    options:
+      - text: "BNB Beacon Chain"
+        correct: false
+      - text: "BNB Smart Chain (BSC)"
+        correct: true
+      - text: "opBNB"
+        correct: false
+    explanation: "BNB Smart Chain is the EVM-compatible chain where almost all dApps live. The Beacon Chain was sunset in 2024."
+  - question: "Which of these is NOT a current member of the BNB Chain ecosystem?"
+    options:
+      - text: "BNB Smart Chain"
+        correct: false
+      - text: "opBNB"
+        correct: false
+      - text: "BNB Greenfield"
+        correct: false
+      - text: "BNB Beacon Chain"
+        correct: true
+    explanation: "BNB Beacon Chain was sunset in 2024 (BEP-333). Staking and governance moved to BSC. Smart Chain, opBNB and Greenfield are the three active members today."
+---
+
+## A 60-second history
+
+The chain we call **BNB Chain** today started life in 2017 as **Binance Coin** — a simple ERC-20 token on Ethereum used to pay fees on the Binance exchange. That was it. No chain, no smart contracts, no DeFi.
+
+Things moved fast:
+
+- **2019** — Binance launched its own chain, **Binance Chain**, focused on a single use case: a decentralized exchange. It was fast but had no smart contracts.
+- **2020** — They launched a second, parallel chain called **Binance Smart Chain (BSC)** that *did* support smart contracts and was compatible with Ethereum tooling. Suddenly DeFi exploded on it.
+- **2022** — The whole ecosystem was rebranded. "Binance Coin" became **Build N Build (BNB)**. The two chains became **BNB Beacon Chain** (the original) and **BNB Smart Chain** (the EVM one). The umbrella name is now **BNB Chain**.
+- **2024** — The original Beacon Chain was officially sunset. Staking and governance moved on-chain to BSC. The ecosystem also added **opBNB** (an L2 rollup) and **BNB Greenfield** (decentralized storage).
+
+So when somebody says "BNB Chain" today without further context, they almost always mean **BNB Smart Chain**.
+
+## What does it actually do?
+
+BNB Smart Chain is a **general-purpose EVM-compatible blockchain**. Two phrases there matter:
+
+**General-purpose**: anyone can deploy a smart contract to it. There's a DEX (PancakeSwap), there are lending protocols (Venus, Kinza), there are NFT marketplaces, there are games, there are memecoins. The chain doesn't care what you build.
+
+**EVM-compatible**: it speaks the same language as Ethereum. The same Solidity code, the same wallets (MetaMask, Rabby, etc.), the same standards (ERC-20 becomes BEP-20, ERC-721 becomes BEP-721). If you've used Ethereum, the mental model transfers almost 1:1.
+
+The two big differences with Ethereum are **fees** and **speed**: BSC transactions typically cost a few cents and confirm in around a second. That's the trade-off the chain makes — fewer validators (more on that next lesson) in exchange for cheaper, faster blocks.
+
+## Why this matters for the rest of the academy
+
+Almost everything you'll do on BNB Chain in this course — connecting a wallet, swapping a token, reading a contract on BscScan, evaluating a memecoin — happens on **BSC specifically**. opBNB and Greenfield are interesting but not where you start.
+
+Keep this map in your head:
+
+> **BNB** = the token
+> **BNB Chain** = the ecosystem
+> **BNB Smart Chain (BSC)** = the EVM chain you'll use 95% of the time
+> **opBNB** = a Layer 2 rollup on top of BSC, even cheaper
+> **BNB Greenfield** = a separate chain for decentralized storage
+
+If you remember just that, you're ahead of most people writing about it on Twitter.

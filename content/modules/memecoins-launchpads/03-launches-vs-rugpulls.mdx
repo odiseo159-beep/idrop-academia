@@ -1,0 +1,180 @@
+---
+title: "Launches vs Rugpulls"
+description: "The mechanical differences between a real fair launch and an exit scam dressed up as one."
+duration: 13
+xp: 135
+order: 3
+quiz:
+  - question: "What's the most common technical mechanism used in a \"liquidity rug\"?"
+    options:
+      - text: "The team owns the LP tokens and withdraws them, draining the pool"
+        correct: true
+      - text: "The exchange goes down"
+        correct: false
+      - text: "The token expires"
+        correct: false
+    explanation: "If the team holds the LP tokens for the trading pool (rather than burning them or locking them), they can call `removeLiquidity` and pull all the BNB out, leaving holders with worthless tokens. Locking LP tokens (or burning them) is the most basic anti-rug measure."
+  - question: "What is a \"honeypot\" token?"
+    options:
+      - text: "A token with high yields"
+        correct: false
+      - text: "A token whose contract has hidden logic that prevents non-team addresses from selling — buyers can't ever exit"
+        correct: true
+      - text: "A token that pays you to hold"
+        correct: false
+    explanation: "Classic honeypots use blacklists, transfer fees that round to 100% for non-team wallets, or modifier checks that revert sells. Buyers see the price pumping but can't ever realize the gains. Tools like Token Sniffer flag known honeypot patterns."
+  - question: "Which of these is the SINGLE strongest signal that a launch is NOT a rugpull?"
+    options:
+      - text: "Active Telegram"
+        correct: false
+      - text: "Liquidity is verifiably locked or burned, AND ownership of the contract is renounced"
+        correct: true
+      - text: "Lots of holders"
+        correct: false
+    explanation: "These two conditions together remove the team's ability to (a) drain the LP and (b) modify the contract to introduce new attacks. Many other factors matter, but without these two, no other signal really protects you."
+---
+
+## The core question
+
+You see a brand-new token on Four.meme or freshly added to PancakeSwap. The price is moving. Telegram is buzzing. The question that determines everything: **is this a real attempt at a community token, or a planned exit scam?**
+
+Both look superficially similar in the first hours. The differences are mechanical, observable on-chain, and learnable in 10 minutes.
+
+## The taxonomy of rugs
+
+Not every failed launch is a rug. Distinguishing categories matters:
+
+### Liquidity rug (LP rug)
+
+The team is the only LP. After enough buyers fill the pool with BNB, they call `removeLiquidity`. The BNB leaves with them, the pool drops to zero BNB, and your tokens become unsellable.
+
+**Detection**: check who owns the LP tokens.
+- LP tokens held by the team wallet → high rug risk.
+- LP tokens held by `0x000...dead` (burn address) → permanent.
+- LP tokens held by a known locker contract (PinkLock, UNCX, Team.Finance) → locked for the lock duration. Verify the duration.
+
+### Mint rug (supply inflation)
+
+The contract has a `mint()` function callable by the owner. After buyers accumulate, the owner mints a massive new supply, dumps it into the pool, and exits with the BNB. Holders' tokens are diluted to ~0.
+
+**Detection**: read the contract on BscScan.
+- Look for any `mint`, `_mint`, `setSupply`, `inflate` functions.
+- Check if they're `onlyOwner` and whether ownership is renounced.
+- Capped supply tokens (no public mint, immutable cap) can't be mint-rugged.
+
+### Honeypot
+
+Buy works. Sell reverts. Common implementations:
+
+- Blacklist: contract maintains a blacklist; non-whitelisted addresses can't transfer.
+- Sell tax of 99%: technically you can sell, but you receive 1% of expected value.
+- Transfer modifier with hidden conditions: looks like a normal transfer but reverts based on caller logic.
+
+**Detection**:
+- **Token Sniffer** (`tokensniffer.com`) and **Honeypot.is** programmatically test buy/sell behavior. Free, fast, accurate.
+- Read the contract for any custom transfer logic. Standard OpenZeppelin ERC20 = clean. Modified `_transfer` overrides = read carefully.
+- Test with a tiny amount first: buy 0.001 BNB worth, then immediately try to sell. If sell fails, it's a honeypot.
+
+### Slow rug / soft rug
+
+The team gradually sells their allocation over weeks or months. Price slowly bleeds while social channels insist "we're building". By the time it's obvious, holders are 80% down.
+
+**Detection**: monitor known team wallets via BscScan. Sustained outflows to exchanges = distribution.
+
+### Tax rug
+
+The contract sets very high buy/sell taxes (e.g. 50% sell tax). Taxes go to a "marketing wallet" controlled by the team. Effectively a slow drain of every transaction.
+
+Tokens with high taxes can be legitimate (taxes can buy back, fund development, lock more LP). But high taxes + opaque tax flow + team-controlled tax wallet = rug structure.
+
+**Detection**: read the contract for `_taxFee`, `_liquidityFee`, `_marketingFee`. Trace where the proceeds go. If they go to an EOA you don't trust, treat as rug-adjacent.
+
+## What a "fair" launch looks like, mechanically
+
+A launch designed not to rug has these properties — verifiable on-chain:
+
+**1. Liquidity locked or burned**
+
+- LP tokens sent to `0x000...dead` (burned) or to a known time-locked contract.
+- Lock duration ≥ 6 months, ideally 1 year+ for a project that wants to demonstrate commitment.
+
+**2. Ownership renounced**
+
+- `owner()` returns `0x000...0000`.
+- After this, no one can call `onlyOwner` functions. No new mints, no tax changes, no blacklist additions, no upgrades.
+
+**3. No malicious functions in the contract**
+
+- Standard BEP-20 functions only, or extensions that have been audited and explained.
+- No hidden mint, no blacklist, no transfer pause.
+
+**4. Reasonable token distribution**
+
+- Top holder isn't 50%+ of supply (excluding the LP itself and burn address).
+- Multiple early buyers, not just a handful of bot-funded wallets.
+
+**5. Verifiable team commitment (optional, depends on project)**
+
+- For non-anon teams: doxxed founders with reputational stake.
+- Multi-sig contract owner before renouncement.
+- Public roadmap with on-chain milestones.
+
+For pure memecoins, point 5 is often skipped — the value proposition doesn't require team credibility once 1-4 are in place. The contract is the team after renouncement.
+
+## Reading the BscScan signals
+
+Walking through a fresh launch on BscScan, in order:
+
+1. **Token page header**: Is the contract verified? (Required.)
+2. **"Holders" tab**:
+   - Is there a `0x000...dead` entry holding the LP tokens? Good sign.
+   - Or is the LP held by a locker contract? Click through, verify lock duration.
+   - Or is the LP held by an EOA (and address starting with non-trivial hash)? Risk.
+3. **"Read Contract" tab**:
+   - `owner()` returns `0x000...0000`? Good.
+   - `totalSupply()` matches what's claimed?
+4. **"Write Contract" tab** (if not renounced):
+   - What functions are `onlyOwner`?
+   - Pay particular attention to `setTaxFee`, `_mint`, `pause`, `addToBlacklist`.
+5. **"Source Code" tab**:
+   - If you can read Solidity even a bit, scan for unusual patterns.
+   - Look at the constructor and the `_transfer` function.
+   - Or paste into Token Sniffer for an automated read.
+
+In ~3 minutes you can do this triage for any token. Make it a habit before any buy.
+
+## Locker tools you'll see
+
+The "LP locked at X" claim is verifiable. The major lockers on BSC:
+
+- **PinkLock** (`pink.bsc/lock`): widely used. Lock can be checked at `pink.bsc/lock/[lock_id]`.
+- **UNCX Network** (`uncx.network`): cross-chain LP locker.
+- **Team Finance** (`team.finance/view-coin/[address]`): also offers vesting for team tokens.
+
+Each shows: amount locked, unlock date, owner. Verify these match what the team claims. "Liquidity locked for 100 years!" should be checkable in seconds.
+
+## A 60-second rug check script
+
+For any token someone shows you:
+
+1. Open BscScan. Contract verified? (No → walk away.)
+2. Holders tab. LP locked / burned? (No → walk away.)
+3. Owner renounced? (Or multisig with credible signers?)
+4. Token Sniffer or Honeypot.is. Honeypot detected? (Yes → walk away.)
+5. Top holder concentration. Top 10 < 50%? (No → high risk.)
+6. Contract creator history. Repeat-deployer? (Yes → high risk.)
+
+If all six pass, you've eliminated most overt rug risk. Remaining risk is market risk (price action, attention dynamics) — the legitimate uncertainty.
+
+## What you can't detect
+
+Some risks are nearly invisible until they trigger:
+
+- **Future contract upgrades** if proxy pattern is used and ownership not renounced.
+- **Governance attacks** if the project has a DAO with low voter turnout.
+- **Off-chain agreements** between team and CEX that we never see.
+- **Insider information** about exit timing.
+
+For these, time is your best friend. A launch that's been around for months without incident is more trustworthy than yesterday's launch with all the right boxes checked.
+
+The next (and final) lesson translates all of this into a position-sizing and exit framework — turning rug avoidance into actual returns.

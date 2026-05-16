@@ -1,0 +1,155 @@
+---
+title: "DeFi Risks: IL, Hacks, and Due Diligence"
+description: "The four categories of loss — and how experienced LPs evaluate a protocol before depositing."
+duration: 13
+xp: 120
+order: 5
+quiz:
+  - question: "Impermanent loss is \"impermanent\" because…"
+    options:
+      - text: "It always disappears over time"
+        correct: false
+      - text: "It only becomes permanent (realized) when you withdraw — if prices return to entry, the loss vanishes"
+        correct: true
+      - text: "It's tax-deductible"
+        correct: false
+    explanation: "If the price ratio of the two tokens returns to where it was when you deposited, your IL is zero. Withdraw before that happens, and the paper loss is realized. \"Impermanent\" is misleading — many people end up taking permanent losses."
+  - question: "An audit by a reputable firm means a protocol is…"
+    options:
+      - text: "Guaranteed safe"
+        correct: false
+      - text: "More likely to have caught common bugs, but NOT immune to logic errors, oracle manipulation, or new attack vectors"
+        correct: true
+      - text: "Insured against losses"
+        correct: false
+    explanation: "Audits significantly reduce risk but don't eliminate it. Many high-profile DeFi hacks have happened to audited protocols. Treat audits as one signal among several, not as a guarantee."
+  - question: "Which of these is a strong negative signal when evaluating a new DeFi protocol?"
+    options:
+      - text: "Open-source code on GitHub"
+        correct: false
+      - text: "Anonymous team + no audit + APRs that are 100x higher than competitors"
+        correct: true
+      - text: "Documentation in multiple languages"
+        correct: false
+    explanation: "Anonymous teams aren't always bad (many great protocols started anon), but combined with no audit AND outsized yields, you're looking at the risk profile of a likely rugpull. Each signal alone is yellow; together they're red."
+---
+
+## The four ways you lose money in DeFi
+
+Every dollar lost in DeFi falls into one of these buckets:
+
+1. **Impermanent loss / price action**: the assets you held went down, or your LP position underperformed simple holding.
+2. **Smart contract exploits**: a bug or design flaw lets an attacker drain the protocol.
+3. **Operational mistakes**: wrong network, wrong token contract, malicious approvals — the entire previous module.
+4. **Rug pulls**: the team intentionally exits with user funds.
+
+Each has different mitigations. Let's go through them.
+
+## Impermanent loss with real numbers
+
+Let's redo the example from lesson 3 more carefully.
+
+You deposit into a CAKE/BNB pool when:
+- 1 CAKE = $2
+- 1 BNB = $600
+- You deposit 100 CAKE + 0.333 BNB = $400 total
+
+Now consider three price scenarios after one month:
+
+**Scenario A — both unchanged**:
+Pool composition for your share: still 100 CAKE + 0.333 BNB. Value: $400. **IL: $0**.
+
+**Scenario B — CAKE doubles, BNB unchanged** (CAKE = $4, BNB = $600):
+The AMM rebalances by selling some of your CAKE for BNB.
+Your share becomes ~70.7 CAKE + 0.471 BNB = ~$565.
+Holding instead: 100 CAKE × $4 + 0.333 BNB × $600 = $600.
+**IL: -$35 (-5.7%)**.
+
+**Scenario C — CAKE goes to zero**:
+Arbitrageurs drain BNB out of the pool buying CAKE all the way down. Your share is now ~all CAKE, worth $0.
+Holding instead: 100 CAKE × $0 + 0.333 BNB × $600 = $200.
+**IL: -$200 (catastrophic)**.
+
+The asymmetry is the lesson: **IL hurts most when one asset moves dramatically against you in the wrong direction**. For volatile pairs, IL can dwarf the fees you earn.
+
+For stable pairs (USDT/USDC), IL is essentially zero because the prices barely deviate. That's why stable pools dominate large institutional LP capital.
+
+The simple heuristic:
+
+> **The more correlated the two tokens, the lower your IL risk.**
+
+CAKE/BNB has low correlation (different tokens, different drivers). USDT/USDC has very high correlation (both pegged to $1). BTCB/WBTC have near-perfect correlation (both wrapped versions of BTC).
+
+## Smart contract exploits
+
+These are the headline-grabbing $100M+ losses you read about. Categories:
+
+- **Logic bugs**: the contract does something the developers didn't intend. (Example: not validating a price feed, allowing manipulation.)
+- **Reentrancy**: an attacker calls into the contract recursively before it can update state, draining funds. Less common today but historically devastating.
+- **Oracle manipulation**: protocols that price assets off DEX spot prices can be tricked by flash-loan-funded price manipulation.
+- **Cross-chain bridge exploits**: bridges hold huge amounts of locked assets and have repeatedly been the biggest single targets.
+- **Governance attacks**: an attacker accumulates enough governance tokens to vote in malicious changes.
+
+There's no foolproof defense against these. Mitigations:
+
+- **Time-tested protocols**. A protocol that's held >$100M for >2 years without an exploit has been more thoroughly battle-tested than any audit can simulate.
+- **Multiple audits from reputable firms**. CertiK, Trail of Bits, OpenZeppelin, Quantstamp. One audit is OK; multiple from different firms is better.
+- **Active bug bounty programs**. Immunefi-listed bounties of $100k-$10M signal the team takes security seriously.
+- **Diversification**. Don't put all your DeFi exposure into one protocol no matter how trustworthy it seems.
+
+## Operational mistakes
+
+Already covered in the Wallets module. Quick refresher:
+
+- Verify token contracts on BscScan before swapping. Many "USDT" listings on PancakeSwap are scam tokens with the same name.
+- Read every approval popup. Set spending limits to exactly what you need rather than infinite.
+- Use a separate "DeFi" wallet from your savings.
+- Audit your approvals at revoke.cash periodically.
+
+## Rug pulls
+
+A rug pull is when the team or a malicious actor exits with user funds. Variants:
+
+- **Liquidity rug**: the team is the only LP. They withdraw their LP, dropping the pool to zero. Your tokens are now unsellable.
+- **Mint rug**: the contract has a hidden mint function that the owner uses to inflate supply, sell, and dump.
+- **Honeypot**: the contract lets you buy but reverts on sells. You can never exit.
+- **Slow rug**: the team gradually sells their allocation over months, slowly tanking the price while pretending nothing's wrong.
+
+Red flags that combine to indicate rug risk:
+
+- **Anonymous team** with no track record (many legitimate projects start anon — but combined with the rest, it adds up).
+- **No audit**, or audit by a no-name firm.
+- **No mint cap** or **owner can mint freely** (check on BscScan: read contract → look for mint, transferOwnership, blacklist).
+- **Locked liquidity ≠ fair**. Many "locked LP" tokens are locked for 1 month, not 1 year. Check the lock duration.
+- **APRs absurdly higher than competitors** for no obvious reason.
+- **Twitter pumping with bot followers**, paid influencer shilling, no real product.
+
+If 3+ of these apply, treat it as a casino bet, not an investment.
+
+## A repeatable due diligence checklist
+
+Before depositing any meaningful amount in a new DeFi protocol:
+
+1. **Read the docs**. If the protocol can't explain what it does in plain language, skip.
+2. **Check the audit reports** linked from official sources. Skim for high/critical findings and how they were resolved.
+3. **Check TVL history** on DefiLlama. Sustained TVL > $10M for >6 months is meaningful.
+4. **Look at the contract on BscScan**. Verified source? Owner address? Recent changes? Unusual functions?
+5. **Search "[protocol name] hack" and "[protocol name] rug"** on Twitter and Discord. If you find drama, read it.
+6. **Test with a small amount first**. Deposit $50, withdraw it. If withdrawals work cleanly, scale up gradually.
+7. **Set a stop-loss policy**. Know in advance what would make you exit (TVL drop > 30%, governance change, etc.) and follow it.
+
+This is boring, slow work. But "boring and slow" is how people who survive in DeFi actually make returns over years.
+
+## What's next
+
+You've now completed the BNB Chain DeFi module:
+
+- ✅ What DeFi is and why BSC
+- ✅ AMMs and PancakeSwap mechanics
+- ✅ Liquidity pools and LP tokens
+- ✅ Yield farming and APR vs APY
+- ✅ Risks and due diligence
+
+Next modules cover **BEP-20 tokens** (the contracts behind every token on BSC), **NFTs on BNB Chain**, and **Memecoins & Launchpads** — including how Four.meme bonding curves actually work.
+
+> The DeFi protocols that will be around in 5 years are not the ones with the highest APRs today. They're the ones with the most boring, well-audited, time-tested code. Pick boring.

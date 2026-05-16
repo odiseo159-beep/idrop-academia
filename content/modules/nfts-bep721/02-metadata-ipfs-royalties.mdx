@@ -1,0 +1,153 @@
+---
+title: "Metadata, IPFS, and Royalties"
+description: "Where the actual image lives — and why some NFTs lose theirs forever."
+duration: 11
+xp: 115
+order: 2
+quiz:
+  - question: "Why is IPFS commonly used for NFT metadata?"
+    options:
+      - text: "It's free"
+        correct: false
+      - text: "Content is addressed by hash, so the URL is tied to the content — making metadata immutable as long as someone keeps it pinned"
+        correct: true
+      - text: "It's faster than HTTP"
+        correct: false
+    explanation: "An IPFS hash IS the content's fingerprint. If anyone changes the content, the hash changes. So `ipfs://Qm...` always points to the exact bytes it was created with — provided someone is hosting (pinning) those bytes."
+  - question: "What happens if an NFT's metadata is hosted on a regular HTTPS URL and the server goes down?"
+    options:
+      - text: "The blockchain restores it automatically"
+        correct: false
+      - text: "The NFT exists but loses its visible content (image, attributes, etc.) — it's still owned, but functionally orphaned"
+        correct: true
+      - text: "The NFT is deleted"
+        correct: false
+    explanation: "On-chain only the URL is stored. If the URL stops resolving, wallets and marketplaces show a broken image. The NFT itself isn't lost (you still own the tokenId), but the experience around it disappears. This has happened to many \"centralized\" NFT projects."
+  - question: "What is EIP-2981 (royalties standard)?"
+    options:
+      - text: "An interface that lets contracts declare a royalty percentage and recipient — but NFT contracts can't actually enforce that marketplaces pay it"
+        correct: true
+      - text: "A law requiring marketplaces to pay royalties"
+        correct: false
+      - text: "A type of NFT"
+        correct: false
+    explanation: "EIP-2981 standardizes how to *signal* a royalty. The actual payment is voluntary on the marketplace's part. Many marketplaces honor it; some have introduced \"optional royalties\" or zero-royalty modes that creators can't override."
+---
+
+## What's actually stored on-chain
+
+When you mint an NFT, the contract stores almost nothing about the actual content. Typically just:
+
+- The `tokenId` (a number)
+- The `owner` (an address)
+- A reference URL via `tokenURI(tokenId)`
+
+That URL is what wallets and marketplaces fetch to render the NFT. The URL points to a **metadata JSON file** that looks like:
+
+```json
+{
+  "name": "Cosmic Cat #1337",
+  "description": "A cat exploring the multiverse",
+  "image": "ipfs://QmXn5...HJ8K/1337.png",
+  "attributes": [
+    { "trait_type": "Background", "value": "Galaxy" },
+    { "trait_type": "Eyes", "value": "Laser" },
+    { "trait_type": "Hat", "value": "Cosmonaut" }
+  ]
+}
+```
+
+The `image` field then points to wherever the actual PNG (or video, or 3D model) lives. So there are typically two layers of indirection:
+
+1. NFT contract → `tokenURI` → **metadata JSON URL**
+2. Metadata JSON → `image` → **actual content URL**
+
+Both URLs need to be alive for the NFT to "render". This is why infrastructure choices matter.
+
+## The hosting hierarchy: from worst to best
+
+Different ways NFT projects host their content, ranked roughly by durability:
+
+**1. A centralized HTTPS server** owned by the project.
+Worst case. If the project shuts down or stops paying for the server, every image goes blank. Common for early NFT projects in 2017-2018; most no longer render.
+
+**2. AWS S3 / Google Cloud Storage** with a long-term company commitment.
+Better but still rugged when the company decides to stop paying. OpenSea has migrated some collections; others have been abandoned.
+
+**3. IPFS with paid pinning service**.
+Content addressed by hash. As long as *someone* pins the bytes, the URL works. Services like **Pinata**, **NFT.Storage**, **Web3.Storage**, **Filebase**, **Spheron** offer pinning for a few dollars per month.
+
+**4. Arweave**.
+Pay once for storage, the network commits to hosting the content forever (in theory; based on a permanent storage endowment fund). More expensive upfront but no recurring cost.
+
+**5. Fully on-chain**.
+The image data itself stored in the smart contract storage. Maximally durable but only practical for small assets (SVG, ASCII art). CryptoPunks famously went on-chain via a metadata addendum after launch. Chain Runners is fully generative on-chain.
+
+For a serious project: aim for IPFS minimum, ideally with at least 2-3 pinning services, and a metadata file format that doesn't depend on external rendering.
+
+## How IPFS addressing works
+
+When you upload a file to IPFS:
+
+1. The file's bytes are hashed (SHA-256-based).
+2. The hash becomes the file's address — a CID (Content Identifier) like `Qm...` (CIDv0) or `bafy...` (CIDv1).
+3. The file is stored on whatever IPFS node you uploaded to. Other nodes can replicate it.
+4. The URL `ipfs://CID` is permanent for that exact content.
+
+Two important properties:
+
+- **Immutability**: change one pixel of the image → completely different CID. So an NFT pointing to `ipfs://Qm...` will always render the original content if it can be retrieved.
+- **No guaranteed availability**: IPFS is a *protocol*, not a server. If no node has the bytes, the URL is dead. Pinning services exist to keep popular content alive.
+
+For users: when you see an NFT with an IPFS metadata URL, you can verify the content matches by re-hashing and comparing CIDs. For most projects, you trust the hosting; for high-value art, this verification matters.
+
+## Royalties: the long-running drama
+
+The original NFT pitch included ongoing royalties for creators: "you get 5-10% of every secondary sale, forever." For digital artists who'd never had this in traditional markets, this was huge.
+
+The technical reality is murkier.
+
+**EIP-2981** standardized the way contracts *declare* royalties:
+
+```solidity
+function royaltyInfo(uint256 tokenId, uint256 salePrice)
+    external view returns (address receiver, uint256 royaltyAmount);
+```
+
+A marketplace asks the contract "hey, if I sell this token for X, how much royalty should be paid and to whom?" The contract returns the answer. The marketplace then *chooses* whether to honor it.
+
+In 2022-2023, several marketplaces (notably Blur on Ethereum, then others) made royalties **optional or zero by default**. Marketplaces competing on fees raced to the bottom; creators saw their royalty income drop dramatically.
+
+Some responses:
+
+- **On-chain enforcement via blocklists**: contracts that refuse to transfer to known zero-royalty marketplaces. Operator filter style. Workable but adversarial.
+- **Token-bound royalties**: trying to enforce at the protocol level via wrapper contracts. Mixed adoption.
+- **Pricing royalties into the primary mint**: charge more upfront, treat secondary as gravy.
+
+On BSC, the major marketplaces (Element, OpenSea) generally support EIP-2981 and pay royalties by default. The situation is more stable than on Ethereum's competitive Blur landscape, though it could change.
+
+For creators: don't assume royalties as a recurring revenue stream. Treat them as upside on top of primary sales.
+
+For collectors: when you sell an NFT, the marketplace will tell you what royalty (if any) is being paid. Be aware that on some marketplaces it's now optional.
+
+## Practical metadata structure
+
+When you mint, structure metadata to avoid future regret:
+
+- **Name and description**: keep them descriptive without baking in time-sensitive language.
+- **Image**: ideally on IPFS, ideally also pinned to Arweave for redundancy.
+- **Attributes**: structured key-value pairs. Marketplaces use these to enable trait filtering.
+- **External URL**: link back to your project page (don't make this load-bearing — projects die).
+- **Animation URL**: optional, for animated/interactive NFTs.
+
+A common pattern for collections: pre-generate all metadata files, upload as a folder to IPFS, get back a folder CID. Then `tokenURI(N)` returns `ipfs://[FOLDER_CID]/N.json`. Clean and discoverable.
+
+## What you take into the next lesson
+
+You now know:
+
+- NFTs are pointers; the actual content lives elsewhere.
+- IPFS is the most common honest hosting solution; understand its trade-offs.
+- Royalties are signaled by EIP-2981 but not technically enforced — depend on marketplace cooperation.
+
+The next lesson is the practical side: which marketplaces operate on BSC, what fees they charge, and how to list/buy NFTs on each.

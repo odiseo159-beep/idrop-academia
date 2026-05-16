@@ -1,0 +1,120 @@
+---
+title: "Liquidity Pools and LP Tokens"
+description: "Where the yield really comes from — and what an LP token represents."
+duration: 13
+xp: 120
+order: 3
+quiz:
+  - question: "When you provide liquidity to a BNB/USDT pool, what do you receive?"
+    options:
+      - text: "A receipt token (LP token) representing your share of the pool"
+        correct: true
+      - text: "Cash directly to your wallet"
+        correct: false
+      - text: "A percentage of every transaction on the entire chain"
+        correct: false
+    explanation: "You deposit two tokens, the pool gives you LP tokens proportional to your share. Burn the LP tokens later to redeem your share of the (potentially changed) pool composition."
+  - question: "Why must you provide BOTH tokens of a pair (e.g. BNB AND USDT) to a constant-product AMM?"
+    options:
+      - text: "Just a UX choice"
+        correct: false
+      - text: "The pool needs both sides to maintain the x*y=k invariant; depositing only one side would break pricing"
+        correct: true
+      - text: "Tax reasons"
+        correct: false
+    explanation: "The math requires both sides. If you put in only BNB, k would change but the price would shift dramatically and arbitrageurs would extract value before you could withdraw."
+  - question: "What's the source of the yield an LP earns?"
+    options:
+      - text: "Inflation of new tokens"
+        correct: false
+      - text: "Swap fees from traders using the pool, plus any extra incentive rewards the protocol layers on top"
+        correct: true
+      - text: "Interest on deposited assets"
+        correct: false
+    explanation: "Base yield = your share of the 0.25% (or whatever) swap fee on every trade. Many protocols add an emissions reward on top (e.g. CAKE rewards on PancakeSwap), which is a separate, often larger, yield component."
+---
+
+## The economic role of an LP
+
+In an order book exchange, **market makers** post bids and asks and profit from the spread. Their job is to be willing to take the other side of any trade.
+
+In an AMM, that role is played by **Liquidity Providers (LPs)**. They deposit equal *value* of two tokens into a pool. Anyone wanting to swap between those two tokens uses the pool. Each swap pays a fee. That fee accrues to the LPs proportional to their share of the pool.
+
+So an LP is essentially betting that:
+
+> **Total fees earned > Loss from impermanent loss + opportunity cost**
+
+We'll get to impermanent loss in lesson 5. For now, focus on the basic mechanics.
+
+## Providing liquidity, step by step
+
+Concretely, on PancakeSwap, here's what providing liquidity looks like:
+
+1. You go to the **Liquidity** page.
+2. You pick a pair, e.g. **CAKE / BNB**.
+3. The UI shows you the current pool's ratio. Say 50 CAKE = 1 BNB. So 1 CAKE ≈ 0.02 BNB.
+4. You enter how much CAKE you want to deposit. The UI auto-calculates the matching BNB amount (must match the current ratio).
+5. You approve both tokens (one-time per token) so the router can pull them.
+6. You confirm the deposit transaction.
+7. In return, your wallet receives an **LP token** — specifically, a CAKE-BNB LP token, which is itself a BEP-20 token representing your share of the pool.
+
+That LP token is your receipt. The pool doesn't track "you contributed 100 CAKE and 2 BNB". It just knows that you hold X% of the LP supply. Burn your LP tokens later, and you get back X% of whatever the pool currently holds.
+
+## What "X% of the pool" means in practice
+
+This is critical, because it's where impermanent loss comes from.
+
+Imagine you deposit when CAKE is $2 and BNB is $600. You put in:
+- 100 CAKE ($200)
+- 0.333 BNB ($200)
+
+Your total deposit value: **$400**.
+
+Now suppose CAKE rallies hard and BNB stays flat. CAKE is now $4 each. The pool's automated arbitrage with external markets will rebalance: someone buys CAKE *out* of the pool until the implied pool price catches up.
+
+After arbitrage settles, your share of the pool might now be:
+- 70.7 CAKE ($283)
+- 0.471 BNB ($283)
+
+Your total: **$566**.
+
+Compare this to if you'd just held the original tokens:
+- 100 CAKE ($400) + 0.333 BNB ($200) = **$600**
+
+You're up to $566 instead of $600. That $34 gap is **impermanent loss**. The pool gave you fewer CAKE than you put in, because as CAKE rose, the AMM was selling some of yours into the market.
+
+The fees you earned during this period might or might not make up the gap. If trading volume was high, fees might cover impermanent loss and then some. If volume was low, you'd have been better off just holding.
+
+This is the central trade-off of being an LP. We'll go deeper on it in lesson 5.
+
+## LP tokens are themselves a building block
+
+Here's where it gets interesting. The LP token in your wallet is *just* a BEP-20 token. So:
+
+- **You can transfer it** to another address.
+- **You can stake it** in a farm to earn additional rewards on top of swap fees.
+- **You can use it as collateral** in some lending markets.
+- **You can build derivatives on top of it** — vaults, structured products, leveraged LP positions.
+
+The fact that LP tokens are composable is what enables most of the **yield farming** ecosystem. PancakeSwap's farms, for instance, take CAKE-BNB LP tokens (you can't farm with raw CAKE and BNB) and pay you CAKE rewards on top of the underlying swap fee yield. We'll dive into that in the next lesson.
+
+## V2 vs V3 pools (briefly)
+
+PancakeSwap (and Uniswap before it) introduced **v3** pools alongside the classic v2 design. The big difference: in v3, LPs can choose the **price range** in which their liquidity is active.
+
+In v2 your liquidity is spread evenly from price 0 to price ∞. In v3 you might say "I want my BNB/USDT liquidity active only between $550 and $650". Within that range, your capital is much more efficient — same deposit earns 5-50× more fees.
+
+The catch: outside the range, your position is 100% in one of the two tokens and earns no fees. You have to actively manage the range as price moves.
+
+For learning, v2 is simpler. For serious LPing, v3 has better economics if you're willing to manage positions.
+
+## Picking pools
+
+Not all pools are equally attractive. Things to consider:
+
+- **Volume / TVL ratio**: a pool with $1M TVL doing $5M in daily volume is far more profitable per dollar than $50M TVL doing $5M.
+- **Token pair correlation**: stable/stable pairs (USDT/USDC) have minimal impermanent loss. Volatile pairs (a memecoin / BNB) have huge impermanent loss risk.
+- **Reward emissions**: many pools have time-limited extra rewards (CAKE emissions, partner project tokens). High emissions ≠ sustainable yield.
+- **Audit status of the protocol**: don't LP into unaudited forks no matter how attractive the APR.
+
+The next lesson takes the LP token and stakes it. That's where farming starts.

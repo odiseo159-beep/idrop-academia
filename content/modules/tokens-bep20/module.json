@@ -1,0 +1,25 @@
+{
+  "i18n": {
+    "en": {
+      "title": "BEP-20 Tokens",
+      "tagline": "The standard that powers every token on BNB Chain",
+      "description": "Almost every token you'll ever use on BSC implements BEP-20. Understand the standard end-to-end: what each function does, how transfers and approvals work under the hood, how to read a contract on BscScan, and how to deploy your own test token to a testnet."
+    },
+    "es": {
+      "title": "Tokens BEP-20",
+      "tagline": "El estándar que mueve cada token en BNB Chain",
+      "description": "Casi cada token que usarás en BSC implementa BEP-20. Entiende el estándar de punta a punta: qué hace cada función, cómo funcionan las transferencias y aprobaciones por dentro, cómo leer un contrato en BscScan, y cómo desplegar tu propio token de prueba en una testnet."
+    }
+  },
+  "chain": "bnb",
+  "difficulty": "intermediate",
+  "status": "available",
+  "durationMinutes": 50,
+  "totalXp": 500,
+  "totalLessons": 4,
+  "category": "Smart Contracts",
+  "icon": "coins",
+  "accent": "orange",
+  "tags": ["bep-20", "tokens", "solidity", "smart-contracts"],
+  "prerequisites": ["fundamentos-bnb"]
+}

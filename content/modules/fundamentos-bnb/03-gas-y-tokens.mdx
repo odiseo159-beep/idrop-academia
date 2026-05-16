@@ -1,0 +1,97 @@
+---
+title: "Gas, Native BNB, and BEP-20"
+description: "Why every transaction needs BNB, and the difference between native and contract tokens."
+duration: 11
+xp: 100
+order: 3
+quiz:
+  - question: "Why do you need BNB to do anything on BSC, even if you only want to swap stablecoins?"
+    options:
+      - text: "It's a marketing fee"
+        correct: false
+      - text: "Every transaction consumes gas, and gas is paid in BNB"
+        correct: true
+      - text: "Only for premium accounts"
+        correct: false
+    explanation: "BNB is the native gas token. Every operation — transfers, swaps, contract calls — burns gas, and gas is denominated in BNB. No BNB, no transactions."
+  - question: "What's the difference between native BNB and a BEP-20 token?"
+    options:
+      - text: "Nothing, they are the same"
+        correct: false
+      - text: "Native BNB lives at the protocol level; BEP-20 tokens are records inside a smart contract"
+        correct: true
+      - text: "BEP-20 tokens are faster"
+        correct: false
+    explanation: "Native BNB has its own balance field tracked by the chain itself. A BEP-20 token (USDT, CAKE, etc.) is just a balance entry in some ERC-20-style smart contract."
+  - question: "What is WBNB and why does it exist?"
+    options:
+      - text: "Wrapped BNB — a BEP-20 version of BNB that lets contracts treat BNB as a regular token"
+        correct: true
+      - text: "A scam token to avoid"
+        correct: false
+      - text: "A staking derivative"
+        correct: false
+    explanation: "Many DEX router contracts only know how to handle BEP-20 tokens. WBNB is a 1:1 wrapped version of native BNB so it can be used in those contracts. PancakeSwap routes through it constantly."
+---
+
+## Two kinds of value on the same chain
+
+Open MetaMask connected to BSC and you'll see, say:
+
+```
+0.4521 BNB
+135.20 USDT
+2,400 CAKE
+```
+
+These look like the same thing — three balances next to each other. But under the hood they live in **two completely different worlds**.
+
+**Native BNB** is special. The blockchain itself maintains a balance for every address. When you send 0.1 BNB to a friend, the chain debits your balance and credits theirs at the protocol level. No smart contract is involved.
+
+**USDT, CAKE, and almost every other token** are **BEP-20 tokens**. They are *not* tracked by the chain. They are tracked inside a smart contract — basically a big ledger that says "address 0xABC has 135 USDT." When you "send" USDT, you're calling that contract's `transfer` function, which updates an entry in its internal mapping.
+
+That distinction explains 90% of the confusion newcomers have.
+
+## What is gas, in one paragraph
+
+Every operation on the chain costs computational work — opcodes, storage reads, storage writes. The chain assigns a cost (in **gas units**) to each operation. You, the sender, pay for that work upfront. The price you pay per gas unit is the **gas price**, denominated in **gwei** (1 gwei = 0.000000001 BNB).
+
+> **Total fee = gas used × gas price**
+
+If a swap consumes 150,000 gas units and the gas price is 3 gwei, you pay `150,000 × 3 × 10⁻⁹ = 0.00045 BNB`. At, say, $600 per BNB, that's about 27¢.
+
+You always pay gas in **native BNB**. You can't pay gas in USDT, even if you have a million of it. This is the single most common reason new users get stuck: they bridge stablecoins to BSC, try to swap, and get an "insufficient funds for gas" error because their BNB balance is zero.
+
+> **Practical rule**: keep at least $2–3 worth of BNB liquid in any wallet you actively use. It's the chain's "stamp price."
+
+## BEP-20 in 30 seconds
+
+A BEP-20 token contract exposes a small set of functions that every wallet and every dApp knows how to call:
+
+- `balanceOf(address)` — how much does this address hold?
+- `transfer(to, amount)` — send tokens.
+- `approve(spender, amount)` — allow another contract to pull tokens from your balance, up to a limit.
+- `transferFrom(from, to, amount)` — used by the approved spender.
+
+That's it. Once a token implements those functions, MetaMask, Trust Wallet, PancakeSwap, BscScan and everyone else can interact with it. The standard is the lingua franca.
+
+There's a whole module on BEP-20 later. For now, the key idea is: **a BEP-20 token *is* a smart contract**. Its address (e.g. `0x55d398326f99059fF775485246999027B3197955` — that's USDT on BSC) is the contract address.
+
+## WBNB: bridging the two worlds
+
+Many DeFi contracts — DEX routers in particular — are written to handle BEP-20 tokens uniformly. They have no special code path for native BNB. To make BNB usable in those contracts, there's a token called **WBNB (Wrapped BNB)**.
+
+WBNB is a BEP-20 token contract with one rule: you can deposit native BNB into it and receive an equivalent amount of WBNB, or burn WBNB and get native BNB back. Always 1:1. No fees beyond gas.
+
+When you do a swap on PancakeSwap from BNB to USDT, the router silently wraps your BNB into WBNB first, then performs the swap. You never see WBNB in your wallet because it's wrapped and unwrapped in the same transaction. But it's there.
+
+If you ever see `WBNB` show up in a transaction trace on BscScan, that's why.
+
+## What to take away
+
+- **Native BNB** is what the chain itself tracks. You pay gas in it.
+- **BEP-20 tokens** are balances inside smart contracts. Most things you'll trade are BEP-20.
+- **WBNB** exists so contracts can treat BNB as if it were a BEP-20 token.
+- Always keep some BNB for gas. Always.
+
+In the next lesson we'll zoom out and look at the rest of the BNB ecosystem — opBNB, Greenfield, and the dApps you'll actually use.

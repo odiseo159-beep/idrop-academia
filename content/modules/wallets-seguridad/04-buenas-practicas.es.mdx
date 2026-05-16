@@ -1,0 +1,113 @@
+---
+title: "Hábitos de Seguridad Operacional"
+description: "La rutina que los usuarios experimentados siguen para mantenerse seguros durante años, no semanas."
+duration: 11
+xp: 115
+order: 4
+quiz:
+  - question: "¿Por qué usar un hardware wallet?"
+    options:
+      - text: "Es más rápido que MetaMask"
+        correct: false
+      - text: "La llave privada nunca sale del dispositivo, así que ni una computadora comprometida puede firmar sin tu confirmación física"
+        correct: true
+      - text: "Gana más yield"
+        correct: false
+    explanation: "La firma criptográfica sucede dentro del elemento seguro del hardware. El malware en tu computadora puede pedir firmas, pero el dispositivo requiere pulsaciones físicas de botones para confirmarlas — y te muestra qué estás firmando en su propia pantalla."
+  - question: "¿Qué es la compartimentalización de wallets?"
+    options:
+      - text: "Usar una wallet para todo"
+        correct: false
+      - text: "Dividir fondos entre wallets separadas según el propósito (ahorros, uso diario, experimental)"
+        correct: true
+      - text: "Encriptar tu seed phrase dos veces"
+        correct: false
+    explanation: "Si tu wallet experimental se drena, tu wallet de ahorros queda intacta porque tiene llaves separadas. La compartimentalización limita el radio de explosión de cualquier error individual."
+  - question: "¿Qué herramienta ayuda a auditar y revocar aprobaciones de riesgo?"
+    options:
+      - text: "El token tracker de BscScan"
+        correct: false
+      - text: "revoke.cash"
+        correct: true
+      - text: "MetaMask Portfolio"
+        correct: false
+    explanation: "revoke.cash muestra cada aprobación de gasto que tu dirección haya otorgado, con revocación en un clic. Vale la pena correrlo cada par de meses."
+---
+
+## Una rutina de seguridad simple y duradera
+
+No necesitas un setup paranoico. Necesitas uno *consistente*. Aquí va una rutina a la que los usuarios experimentados convergen. Adapta los valores umbral a tu propia situación.
+
+### Estratifica las wallets
+
+Usa al menos dos, idealmente tres, wallets separadas:
+
+| Wallet | Respaldada por | Mantiene | Úsala para |
+|---|---|---|---|
+| **Fría / Bóveda** | Hardware wallet (Ledger, Trezor) | Holdings de largo plazo, cualquier cosa que te devastaría perder | Recibir desde exchanges, almacenamiento de largo plazo. Rara vez conectar a dApps. |
+| **Caliente / Diaria** | MetaMask, Rabby, etc. | Balance operativo para actividad rutinaria | Swaps en PancakeSwap, lending en Venus, cualquier cosa que ya hayas usado. |
+| **Burner** | Cuenta nueva de MetaMask | Balance pequeño, refrescada seguido | Probar nuevas dApps, reclamar airdrops, cualquier cosa experimental. |
+
+Cada nivel tiene su propia seed (bueno, la caliente/burner pueden ser cuentas distintas bajo la misma seed — pero considera seeds separadas para verdadero aislamiento). El punto es que un compromiso de la burner nunca pueda llegar a la bóveda.
+
+### Respalda la seed correctamente
+
+Para la wallet fría:
+
+- **Pluma y papel** para el respaldo inmediato, guardado en algún lugar al que solo tú puedas acceder. No el cajón de tu escritorio.
+- **Respaldo de acero** (Cryptosteel, Billfodl, o placas DIY de arandelas) para resistencia al fuego/agua una vez que el holding justifique el costo (~$50-100).
+- **Separación geográfica** si tienes cantidades que cambian la vida: dos copias en dos ubicaciones físicas distintas.
+
+Nunca:
+
+- Fotografíes la seed.
+- Escribas la seed en ningún dispositivo que esté online excepto la wallet que la produjo.
+- Guardes la seed digitalmente sin encriptación fuerte y offline (e incluso así, el archivo encriptado es un objetivo).
+
+### Usa un hardware wallet para valor significativo
+
+El umbral de "valor significativo" es personal. Para la mayoría de personas, cualquier cosa por encima de lo que perderías sin quejarte amerita hardware. Dos razones:
+
+- **Firma resistente a phishing**: incluso en una computadora completamente comprometida, no puedes firmar una transacción sin pulsar físicamente botones en el dispositivo. El dispositivo te muestra la dirección destino y la cantidad en su propia pantalla — verificas contra eso, no contra tu monitor.
+- **Almacenamiento en frío**: el hardware wallet puede mantener la seed indefinidamente sin conectarse nunca a internet. Las operaciones de firma suceden bajo demanda.
+
+Un Ledger o Trezor cuesta aproximadamente $80 al menudeo. Compra directamente del sitio del fabricante, no en Amazon (han pasado ataques de cadena de suministro). Configúralo tú mismo; nunca uses un dispositivo "preconfigurado".
+
+### Lee cada popup
+
+Esta es la disciplina que la mayoría abandona después de unas semanas usando web3.
+
+Cada popup de MetaMask que te pide firmar algo tiene, en algún lugar, una "función" siendo llamada. Las comunes:
+
+- **`transfer` / `transferFrom`**: realmente moviendo tokens. Debe coincidir con lo que pretendías.
+- **`approve` / `permit`**: otorgando a un contrato permiso para gastar tus tokens. Presta atención a *qué* contrato y *qué cantidad*. Las aprobaciones ilimitadas en stablecoins son un riesgo de larga data.
+- **`swap`**: rutinario para actividad de DEX.
+- **Un blob hexadecimal opaco**: esto es una llamada a contrato custom. Si no puedes leerlo y no confías en la dApp, no firmes.
+
+Si el popup parece inusual para lo que el sitio dice que estás haciendo, **detente y revisa**. Una pausa de 30 segundos ha salvado más wallets que cualquier herramienta.
+
+### Usa herramientas de simulación
+
+Extensiones de navegador como **Pocket Universe**, **Wallet Guard** o **Blockaid** (integrado en Rabby y rolling out en MetaMask) interceptan transacciones y te muestran un preview en lenguaje simple del *resultado*: "Después de esta transacción, tu balance será: -1.0 BNB, -50 USDT, +0 de cualquier cosa". Si el preview revela un flujo de salida inesperado, tienes una señal clara para cancelar.
+
+Esta es la herramienta individual de mayor apalancamiento contra drainers en 2025.
+
+### Audita aprobaciones periódicamente
+
+Cada par de meses, visita **revoke.cash** con tu wallet caliente conectada. Mira qué direcciones tienen poder de gasto sobre tus tokens. Cualquier cosa que no uses activamente — revócala. La transacción de revocación cuesta gas, pero una aprobación olvidada a un contrato que olvidaste es una superficie de ataque permanente.
+
+### Ten un plan de recuperación
+
+Pregúntate, con calma, antes de que pase nada:
+
+- Si mi teléfono desapareciera ahora mismo, ¿puedo recuperar mi wallet caliente desde otro dispositivo usando mi seed?
+- Si quedo incapacitado, ¿alguien en quien confío podría recuperar la wallet fría, y ese es el resultado correcto para ellos?
+- ¿Dónde están mis respaldos de seed, exactamente? ¿Podría describir sus ubicaciones a mi yo futuro si mi memoria fallara?
+
+Estas no son preguntas mórbidas — son operacionales. Una wallet que no puedes recuperar es funcionalmente idéntica a una que ha sido robada.
+
+## Ya estás más allá de la zona de peligro
+
+La mayoría de recién llegados onchain pierden dinero en los primeros seis meses porque no sabían nada de esto. Tú ahora sí. La cantidad de riesgo que tomes a partir de aquí es función de tus propias decisiones — que es el lugar correcto donde estar.
+
+Estás listo para las partes realmente interesantes de la cadena: **DeFi**, **tokens**, **NFTs**, y cómo funcionan los launchpads. Esos son los próximos módulos.

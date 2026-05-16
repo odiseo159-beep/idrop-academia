@@ -1,0 +1,106 @@
+---
+title: "PancakeSwap y el Modelo AMM"
+description: "Cómo los automated market makers ponen precio a los tokens — y por qué existe el slippage."
+duration: 14
+xp: 120
+order: 2
+quiz:
+  - question: "¿Qué significa AMM?"
+    options:
+      - text: "Active Money Manager"
+        correct: false
+      - text: "Automated Market Maker"
+        correct: true
+      - text: "Asset Margin Multiplier"
+        correct: false
+    explanation: "AMM = Automated Market Maker. Un smart contract que mantiene dos tokens y pone precio a los swaps basándose en una fórmula en lugar de un order book."
+  - question: "En un AMM de producto constante (x * y = k), ¿qué pasa con el precio del token X cuando alguien compra mucho de él?"
+    options:
+      - text: "Se mantiene igual"
+        correct: false
+      - text: "Sube — porque la reserva de X en el pool se reduce mientras Y crece"
+        correct: true
+      - text: "Baja"
+        correct: false
+    explanation: "La fórmula mantiene x*y constante. A medida que X se retira del pool, X se vuelve más escaso (y Y más abundante), así que la relación de precio X/Y sube. Por eso los swaps grandes mueven más el precio que los pequeños."
+  - question: "¿Qué es el slippage?"
+    options:
+      - text: "El fee que cobra el DEX"
+        correct: false
+      - text: "La diferencia entre el precio que esperabas y el precio que en realidad obtuviste, debido a que tu propio trade movió el pool"
+        correct: true
+      - text: "Un tipo de token"
+        correct: false
+    explanation: "El slippage es el impacto de precio que tu propio trade causa en el pool. Trades más grandes = más slippage. PancakeSwap te deja configurar una tolerancia máxima; si la ejecución la excedería, el trade se revierte."
+---
+
+## Order books vs AMMs
+
+Los exchanges tradicionales (Binance, Coinbase, NYSE) usan **order books**. Compradores publican bids ("compraré 1 BNB a $580"), vendedores publican asks ("venderé 1 BNB a $582"). Un motor de matching los empareja. Para listar un nuevo activo necesitas market makers dispuestos a proveer bids y asks.
+
+Ese modelo es difícil de hacer onchain. Los order books necesitan matching rápido, muchas actualizaciones de estado y market makers activos — nada de eso es barato en una blockchain.
+
+DeFi resolvió el problema con un diseño diferente: el **Automated Market Maker (AMM)**.
+
+En lugar de un order book, un AMM es un **pool de liquidez** que mantiene dos tokens (digamos, BNB y USDT). Un smart contract pone precio a los swaps usando una fórmula matemática que depende solo de cuánto de cada token hay en el pool. No hay órdenes, no hay matching, no hay market makers en el sentido tradicional — solo depósitos y una fórmula.
+
+## La fórmula de producto constante
+
+La fórmula AMM más famosa, usada por Uniswap v2 y PancakeSwap v2, es:
+
+```
+x * y = k
+```
+
+Donde:
+- `x` = cantidad del token X en el pool
+- `y` = cantidad del token Y en el pool
+- `k` = una constante que no cambia durante los swaps
+
+Si un pool tiene **100 BNB** y **60,000 USDT**, entonces `k = 6,000,000`. El precio implícito actual de BNB es `60000 / 100 = 600 USDT`.
+
+Ahora imagina que haces swap de 1 BNB al pool. Después de tu swap:
+- BNB en pool: 101
+- USDT en pool: debe ser `6,000,000 / 101 = 59,405.94`
+- USDT que recibes: `60,000 - 59,405.94 = 594.06`
+
+Esperabas 600 USDT (el precio spot), pero obtuviste 594.06. La diferencia (alrededor de 1%) es el **price impact**: al añadir al BNB del pool y quitar USDT, cambiaste la relación y obtuviste una tasa peor que el precio titular.
+
+Mientras más grande tu trade relativo al tamaño del pool, peor la tasa. Un swap de 10 BNB del mismo pool te daría más cerca de 545 USDT cada uno — alrededor de 9% peor que spot.
+
+> **Insight clave**: La liquidez de un AMM es *profunda* cerca del precio actual y *delgada* lejos de él. Trades pequeños obtienen excelente ejecución; trades grandes pagan una penalidad por mover el pool.
+
+## Tolerancia de slippage
+
+Cuando haces clic en "Swap" en PancakeSwap, la UI te muestra una salida estimada. Pero para cuando la transacción se mina, otros trades pueden haber movido el pool. La salida real podría ser unos puntos porcentuales peor que el estimado.
+
+La **tolerancia de slippage** es la desviación máxima que aceptarás. El default suele ser 0.5% o 1%. Si la salida real fuera peor que `esperado × (1 - tolerancia)`, el contrato revierte tu transacción (solo pagas gas, no el trade).
+
+Para un par estable como USDT/BUSD, 0.1% de tolerancia es suficiente. Para un token volátil o de baja liquidez, podrías necesitar 5% o más — pero si tienes que ponerla tan alta, pregúntate por qué. A menudo es señal de que el pool es demasiado delgado para tu tamaño de trade.
+
+> **Sandwich attacks**: una tolerancia alta de slippage es explotada por bots MEV. Compran delante de ti (empujando el precio arriba), dejan que tu trade ejecute al peor precio, luego venden. Tu slippage = su ganancia. Mantén la tolerancia baja.
+
+## Fees del pool
+
+Cada swap paga un fee que va a los liquidity providers (más de ellos en la próxima lección). En PancakeSwap v2, el fee estándar es **0.25%**. En v3 (que tocaremos), los fees son configurables por pool: 0.01%, 0.05%, 0.25% o 1%.
+
+Ese fee es el *único* yield que los LPs ganan de la actividad pasiva de swaps. Compone a lo largo de muchos trades.
+
+## Routing a través de múltiples pools
+
+¿Qué pasa si quieres hacer swap de CAKE a SOLV, pero no existe un pool directo CAKE/SOLV? El router de PancakeSwap automáticamente encuentra una ruta:
+
+```
+CAKE → BNB → USDT → SOLV
+```
+
+Ejecuta un swap por cada salto. Pagas el fee en cada paso (así que 3 saltos = 0.75% en fees), y el price impact se acumula. La UI muestra la ruta y el impacto acumulado antes de firmar.
+
+## Qué significa esto para ti
+
+- Mira el campo **price impact** cada vez que hagas swap. Cualquier cosa por encima de 1-2% en un trade de tamaño normal es una bandera amarilla — podrías estar en un pool delgado.
+- Usa tolerancias de slippage **estables** para pares estables, **más altas** solo cuando la liquidez es delgada.
+- Si un token tiene múltiples pools (e.g. CAKE/BNB y CAKE/USDT), el router usará ambos. No tienes que elegir.
+- Para swaps **realmente** grandes, considera dividir en órdenes más pequeñas o usar un agregador como 1inch en BSC.
+
+La próxima lección es sobre el otro lado del AMM: quién provee la liquidez, y cómo le pagan.

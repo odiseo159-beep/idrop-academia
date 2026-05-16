@@ -1,0 +1,97 @@
+---
+title: "Anatomy of a Wallet"
+description: "What a wallet really is — and what it isn't."
+duration: 12
+xp: 110
+order: 1
+quiz:
+  - question: "Where do your tokens actually live?"
+    options:
+      - text: "Inside the wallet app on your phone"
+        correct: false
+      - text: "On the blockchain — your wallet only holds the keys to access them"
+        correct: true
+      - text: "In a database controlled by the wallet provider"
+        correct: false
+    explanation: "Tokens live on the chain. A wallet is a key manager that proves to the chain that you control the address those tokens are assigned to."
+  - question: "What is the relationship between a private key and an address?"
+    options:
+      - text: "They are the same thing"
+        correct: false
+      - text: "The address is derived from the private key, but the private key cannot be derived from the address"
+        correct: true
+      - text: "The address is generated randomly and unrelated"
+        correct: false
+    explanation: "An address is a one-way hash derived from the public key, which is itself derived from the private key. You can go private → public → address, never the other direction."
+  - question: "What is an EOA (Externally Owned Account)?"
+    options:
+      - text: "An account controlled by a private key — what MetaMask gives you by default"
+        correct: true
+      - text: "A smart contract that holds funds"
+        correct: false
+      - text: "An exchange account"
+        correct: false
+    explanation: "EOA = Externally Owned Account = a regular wallet address controlled by a private key. The other category is contract accounts, which are controlled by code."
+---
+
+## A wallet is not where your money lives
+
+This is the single most important sentence in this module:
+
+> Your tokens live on the **blockchain**. Your wallet just holds the **keys** that prove you control them.
+
+If your phone falls in the ocean, your tokens are still on the chain. If you can recover your **seed phrase**, you can install any compatible wallet on any device, restore the same keys, and access the same tokens. The wallet is a tool. The keys are the asset.
+
+This sounds obvious, but a huge percentage of newcomer mistakes — sending support requests like *"I uninstalled MetaMask, did I lose my BNB?"* — come from mixing up the wallet (the app) with the keys (the secret).
+
+## Keys, addresses, and how they relate
+
+Every wallet on BNB Chain (and Ethereum, and many others) is built on the same cryptographic primitive: an **elliptic-curve key pair** called secp256k1.
+
+Three things are involved, in this order:
+
+1. **Private key** — a 256-bit random number. The secret. If anyone learns this, they can move your funds.
+2. **Public key** — derived from the private key by elliptic-curve math. Safe to share.
+3. **Address** — the last 20 bytes of the keccak256 hash of the public key. This is what looks like `0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb1`. Safe to share publicly.
+
+The math is one-way: from a private key you can always derive the public key and the address. From an address, deriving the private key is computationally infeasible — that's what makes the system work.
+
+A signed transaction is just a message ("send 1 BNB from 0xABC to 0xDEF") combined with a cryptographic signature produced by the private key. Anyone can verify the signature using the public key, which proves the owner of the private key authorized the message.
+
+## Seed phrase: the master key
+
+You don't usually back up a single private key — you back up a **seed phrase** (also called a *mnemonic* or *recovery phrase*). It looks like this:
+
+```
+witch collapse practice feed shame open despair creek road again ice least
+```
+
+That's 12 words from a fixed dictionary of 2048 words. Sometimes 24 words. The standard is called **BIP-39**.
+
+From those 12 words you can deterministically derive an effectively unlimited number of private keys. So one seed phrase backs up your "Account 1", "Account 2", "Account 3" in MetaMask — they are all derived from that single seed using a derivation path.
+
+Practical consequences:
+
+- **Lose your seed phrase → lose access to every account derived from it.** No one can help you. There is no support line.
+- **Anyone who learns your seed phrase has total control of every account derived from it.** They can drain everything in seconds.
+
+This is why the seed phrase is *the* thing you protect. Your antivirus won't save you. Your bank won't save you. The chain doesn't care.
+
+## EOA vs Contract Account
+
+When you create a wallet in MetaMask, you get an **Externally Owned Account (EOA)** — an address controlled by a private key. That's the default and what 99% of users have.
+
+The other type is a **contract account** — an address controlled by smart contract code rather than a private key. **Smart wallets** (also called account-abstracted wallets) like Safe, Argent, or Biconomy fall into this category. They can do things EOAs can't: multiple signers, spending limits, social recovery. But they're a more advanced topic.
+
+For BNB Chain in 2025, start with an EOA. You can graduate to smart wallets later when you have more value at stake or specific requirements.
+
+## What you actually carry
+
+After all of this, here's the mental model:
+
+- **Address (`0x...`)** — your public identity. Share freely.
+- **Private key / Seed phrase** — the secret. Share with no one. Ever.
+- **Wallet app (MetaMask, Rabby, Trust)** — a key manager + UI. Replaceable.
+- **Tokens** — entries on the blockchain pointing to your address. You don't "store" them.
+
+If you internalize that, the next lessons (which get progressively more practical) will land much more firmly. Up next: actually putting MetaMask onto BNB Chain step by step.

@@ -1,0 +1,242 @@
+---
+title: "Mint Your First NFT Collection"
+description: "Hands-on: deploy a 100-piece BEP-721 on BSC testnet with IPFS metadata."
+duration: 12
+xp: 115
+order: 4
+quiz:
+  - question: "What's the practical reason to host your NFT collection's metadata on IPFS rather than your personal server?"
+    options:
+      - text: "It's cheaper"
+        correct: false
+      - text: "Your server might go down or you might stop maintaining it; IPFS with multiple pins survives that"
+        correct: true
+      - text: "It's a legal requirement"
+        correct: false
+    explanation: "Personal infrastructure has a life expectancy of months to a few years. NFTs are supposed to be durable. IPFS pinning, especially with multiple services, dramatically increases the chance content stays accessible."
+  - question: "What's the safest way to mint a large collection without paying gas for each piece individually?"
+    options:
+      - text: "There's no way"
+        correct: false
+      - text: "Lazy minting — collectors mint individual pieces themselves at their own gas cost when they buy"
+        correct: true
+      - text: "Mint them all at once in one transaction"
+        correct: false
+    explanation: "Lazy minting shifts gas cost to the buyer. You pre-sign vouchers; collectors redeem them at mint time. Most marketplaces support this. For small collections, batch minting upfront is fine; for 10k+ collections, lazy is standard."
+  - question: "After deploying, what's the most important thing to do for your collection's long-term integrity?"
+    options:
+      - text: "Tweet about it"
+        correct: false
+      - text: "Pin metadata to multiple IPFS services AND make sure tokenURI returns IPFS URIs (not your server)"
+        correct: true
+      - text: "Get listed on every marketplace"
+        correct: false
+    explanation: "Listings come and go; the URI on-chain is forever. If tokenURI points to your-domain.com/metadata, your NFTs die when your domain expires. Make sure it's IPFS, with redundant pinning."
+---
+
+## What you'll build
+
+By the end of this lesson:
+
+- A 100-piece BEP-721 NFT collection on BSC testnet
+- Metadata for each NFT pinned to IPFS
+- A minting interface (anyone can mint via your contract)
+- Verified contract on testnet.bscscan.com
+
+You'll learn the actual workflow indie creators use to ship a small NFT drop.
+
+## Prereqs
+
+Same as the previous module's deploy lesson:
+
+- MetaMask connected to BSC Testnet (chain ID 97)
+- Some testnet BNB from the faucet
+- Remix IDE at remix.ethereum.org
+- An IPFS pinning account: **NFT.Storage** (free, easy) — sign up at `nft.storage`
+- 100 placeholder images (or use any images you have)
+
+## Step 1 — Prepare metadata
+
+Create 100 JSON files locally, named `1.json` through `100.json`. Each file:
+
+```json
+{
+  "name": "IDROP Test #N",
+  "description": "A test piece from the IDROP NFT module",
+  "image": "ipfs://[IMAGE_FOLDER_CID]/N.png",
+  "attributes": [
+    { "trait_type": "Edition", "value": "Genesis" },
+    { "trait_type": "Number", "value": N }
+  ]
+}
+```
+
+Replace `[IMAGE_FOLDER_CID]` with the CID you'll get from uploading images. We'll do that next.
+
+For 100 files, generate them with a quick script (Python, JS, whatever):
+
+```python
+import json, os
+os.makedirs("metadata", exist_ok=True)
+for i in range(1, 101):
+    with open(f"metadata/{i}.json", "w") as f:
+        json.dump({
+            "name": f"IDROP Test #{i}",
+            "description": "A test piece from the IDROP NFT module",
+            "image": f"ipfs://IMAGE_CID_HERE/{i}.png",
+            "attributes": [
+                {"trait_type": "Edition", "value": "Genesis"},
+                {"trait_type": "Number", "value": i}
+            ]
+        }, f)
+```
+
+## Step 2 — Upload to IPFS
+
+You need two folders pinned: one for images, one for metadata.
+
+Using NFT.Storage's web UI:
+
+1. Sign in. Click **Upload**.
+2. Drag the entire `images/` folder. Wait. You'll get a CID for the folder, like `bafybei...`.
+3. Now update your metadata files with that image folder CID (replace `IMAGE_CID_HERE` with the actual CID).
+4. Drag the `metadata/` folder. Get back a metadata folder CID.
+
+Save both CIDs. The metadata folder CID is what your contract will reference.
+
+> **Why a folder, not individual files?** Folders have their own CID, and individual files are addressed as `ipfs://FOLDER_CID/N.json`. This gives you a clean URL pattern: `tokenURI(1)` returns `ipfs://FOLDER_CID/1.json`, etc.
+
+## Step 3 — The contract
+
+In Remix, create `IDROPNFT.sol`:
+
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+
+contract IDROPNFT is ERC721, Ownable {
+    uint256 public constant MAX_SUPPLY = 100;
+    uint256 public totalMinted;
+    string private _baseTokenURI;
+
+    constructor(string memory baseURI)
+        ERC721("IDROP NFT", "IDRPNFT")
+        Ownable(msg.sender)
+    {
+        _baseTokenURI = baseURI;
+    }
+
+    function mint() external {
+        require(totalMinted < MAX_SUPPLY, "Sold out");
+        totalMinted++;
+        _safeMint(msg.sender, totalMinted);
+    }
+
+    function _baseURI() internal view override returns (string memory) {
+        return _baseTokenURI;
+    }
+
+    function setBaseURI(string memory baseURI) external onlyOwner {
+        _baseTokenURI = baseURI;
+    }
+}
+```
+
+Key points:
+
+- **ERC721 from OpenZeppelin** — same code that backs Bored Apes, Pudgy Penguins, etc.
+- **MAX_SUPPLY = 100** — capped collection.
+- **`mint()`** — anyone can call, mints next sequential token to themselves. Pay gas only.
+- **`_baseTokenURI`** — set at deploy. `tokenURI(N)` will return `_baseTokenURI + "N"` by default.
+- **`setBaseURI`** — owner can update if you migrate to a different IPFS pin or fix metadata. Some projects renounce this for "frozen metadata"; for testing, leave it open.
+
+## Step 4 — Compile and deploy
+
+In Remix:
+
+1. **Solidity Compiler** → 0.8.20+ → Compile.
+2. **Deploy & Run** tab → Environment: Injected Provider (MetaMask) → BSC Testnet.
+3. Select `IDROPNFT` contract.
+4. In the constructor field, enter your base URI: `ipfs://[METADATA_FOLDER_CID]/`. **Note the trailing slash.**
+5. Deploy. Confirm in MetaMask.
+
+OpenZeppelin's `ERC721` constructs `tokenURI(N)` as `_baseURI() + tokenId.toString()`. So if `_baseTokenURI = "ipfs://Qm.../"` and you mint token 5, `tokenURI(5)` returns `"ipfs://Qm.../5"`.
+
+But wait — your metadata files are named `1.json`, `2.json`, etc. with a `.json` extension. To handle this, override `tokenURI`:
+
+```solidity
+function tokenURI(uint256 tokenId)
+    public view override returns (string memory)
+{
+    require(_ownerOf(tokenId) != address(0), "Nonexistent token");
+    return string(abi.encodePacked(_baseTokenURI, _toString(tokenId), ".json"));
+}
+
+function _toString(uint256 v) internal pure returns (string memory) {
+    if (v == 0) return "0";
+    uint256 j = v; uint256 len;
+    while (j != 0) { len++; j /= 10; }
+    bytes memory bstr = new bytes(len);
+    while (v != 0) { len -= 1; bstr[len] = bytes1(uint8(48 + v % 10)); v /= 10; }
+    return string(bstr);
+}
+```
+
+Or use OpenZeppelin's `Strings.toString(tokenId)` from `@openzeppelin/contracts/utils/Strings.sol` to skip the manual conversion.
+
+Re-deploy with this updated contract. (For testing, this is fine — you'll have multiple deployed copies.)
+
+## Step 5 — Mint a few
+
+On the deployed contract under "Deployed Contracts" in Remix:
+
+1. Click `mint`. Confirm in MetaMask. Wait for confirmation.
+2. Repeat 2-3 times to mint a few tokens.
+3. Call `balanceOf(your_address)` — should show how many you've minted.
+4. Call `tokenURI(1)` — should return `ipfs://[METADATA_CID]/1.json`.
+
+Open that URL (use a gateway like `https://ipfs.io/ipfs/[CID]/1.json`) — you should see the metadata JSON load. Open the `image` URL in there — should show your image.
+
+## Step 6 — Verify on testnet.bscscan.com
+
+Same process as the BEP-20 module:
+
+1. Go to `testnet.bscscan.com/address/[your_contract]`.
+2. Contract → Verify and Publish.
+3. Use Remix's Etherscan plugin or paste source manually.
+
+After verification, your contract page will show "Read Contract" / "Write Contract" tabs and you can call `mint()` directly from the BscScan UI.
+
+## Step 7 — See it on a marketplace
+
+Element Market has a testnet at `testnet.element.market`. Browse to your contract address and you should see your minted tokens with their images.
+
+(For mainnet, you'd just deploy to BSC mainnet instead and use the production marketplace. The contract code is identical.)
+
+## What you've actually done
+
+You've shipped a real NFT collection. The same code structure, give or take some features (allowlists, paid mints, royalties, reveal mechanisms), backs every NFT collection you've ever heard of.
+
+To take this further you'd add:
+
+- **Royalties via EIP-2981**: implement `royaltyInfo` so marketplaces honor your % cut.
+- **Allowlists / paid mints**: gate mint access by Merkle proof or payment.
+- **Reveal mechanism**: show placeholder metadata pre-reveal, swap to real metadata on a trigger.
+- **Renounce ownership** when you're confident metadata won't change.
+- **Multi-pin to Pinata + Filebase + NFT.Storage** for redundancy.
+
+But the core pattern — contract holds tokenIds, tokenURI returns IPFS metadata, OpenSea/Element render the result — is what you've just built.
+
+## Module wrap-up
+
+You've completed the NFT module:
+
+- ✅ BEP-721 vs BEP-1155 and when to use which
+- ✅ Metadata, IPFS, and royalty mechanics
+- ✅ Marketplaces on BSC and how listings work
+- ✅ Deployed and minted your own collection on testnet
+
+One module left: **Memecoins & Launchpads**. Different vibe, similar fundamentals — and the riskiest module to internalize before touching real money.

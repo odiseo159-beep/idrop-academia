@@ -1,0 +1,163 @@
+---
+title: "Bonding Curves and Four.meme"
+description: "How a launchpad prices a brand new token without an order book or pre-existing liquidity."
+duration: 13
+xp: 135
+order: 2
+quiz:
+  - question: "What is a bonding curve in the context of a token launchpad?"
+    options:
+      - text: "A bond market product"
+        correct: false
+      - text: "A mathematical function that prices each new token based on how many have already been minted/sold — price rises as supply circulates"
+        correct: true
+      - text: "A staking mechanism"
+        correct: false
+    explanation: "Bonding curves are smart contracts that take input (BNB) and mint output tokens at a price determined by the curve. As more tokens are bought, the price moves up the curve. As tokens are sold back, price moves down. Self-contained pricing without needing an external order book or LP."
+  - question: "On Four.meme, what happens when a token \"graduates\" from the bonding curve?"
+    options:
+      - text: "Trading stops"
+        correct: false
+      - text: "Once a market cap threshold (e.g. $69k) is hit, the contract auto-deploys a PancakeSwap LP using the accumulated reserves and burns the LP tokens, opening the token for normal DEX trading"
+        correct: true
+      - text: "The team gets to mint more"
+        correct: false
+    explanation: "Graduation = the bonding curve has done its job. Liquidity has accumulated, price discovery has happened. The protocol moves the token to PancakeSwap with a permanently locked LP, and trading continues there with normal AMM mechanics."
+  - question: "What's the biggest economic risk of buying very early on a bonding curve launch?"
+    options:
+      - text: "Gas is too high"
+        correct: false
+      - text: "If the launch fails to attract more buyers, you're left holding tokens that have no graduation, thin liquidity, and may never reach a real DEX — likely worth zero"
+        correct: true
+      - text: "It's against the law"
+        correct: false
+    explanation: "Most launches don't graduate. Without graduation, your tokens stay on a bonding curve with very limited buyback capacity. If sentiment dies before graduation threshold, the curve drains, your sell price collapses, and you're stuck with an illiquid bag."
+---
+
+## The problem launchpads solve
+
+Imagine you're launching a brand-new token. Before any trading, you have:
+
+- No price (no market has ever traded it)
+- No liquidity pool (no one's contributed BNB)
+- No buyers or sellers
+
+A normal AMM (PancakeSwap) needs an existing pool with both tokens to function. Someone has to seed it. If the team seeds it, they decide the initial price (and can rugpull). If they don't, there's no market.
+
+This chicken-and-egg problem is what **bonding curves** elegantly solve.
+
+## What a bonding curve is
+
+A bonding curve is a smart contract that:
+
+1. Holds a reserve of one asset (typically BNB).
+2. Has total minted tokens of another asset (the new token).
+3. Implements a **pricing function** based on how many tokens have been minted.
+4. Lets anyone:
+   - **Buy**: send BNB → contract calculates how many tokens that buys at the current price → mints them to you. Price moves up.
+   - **Sell**: send tokens → contract calculates BNB to return at the current price → returns BNB. Price moves down.
+
+The math doesn't need an order book or liquidity providers. The contract is the entire market.
+
+A common shape is the **constant product variant**:
+
+```
+price = a * supply^k
+```
+
+For some constants `a` and `k`. As `supply` rises, `price` rises. The integral of this function over the supply range gives the total reserve needed to "buy out" all minted tokens — guaranteeing the contract always has enough BNB to honor sells.
+
+## Four.meme's specific design
+
+Four.meme on BNB Chain implements a launchpad-style bonding curve:
+
+1. **Token creation is free or near-free** — anyone can deploy a new token.
+2. **Initial price starts very low** — fractions of a cent.
+3. **Buys move the price up the curve**; sells move it down. Price discovery happens organically.
+4. **Each buy has a small fee** that goes to the launchpad protocol (sustaining its operation) and partially to the LP graduation pool.
+5. **At a threshold market cap** (commonly $69k or thereabouts; exact number is configurable), the token "graduates":
+   - The curve's accumulated reserves (BNB + remaining minted tokens) seed a PancakeSwap LP.
+   - The LP tokens are burned (locked forever).
+   - Trading continues on PancakeSwap with normal AMM dynamics.
+   - The bonding curve is closed.
+
+Pre-graduation, all trading happens on the bonding curve. Post-graduation, all trading happens on PancakeSwap.
+
+## Why graduation matters
+
+Graduation is the goal for two reasons:
+
+**1. Permanent liquidity**: the LP tokens are burned, meaning no one — not the team, not Four.meme, not anyone — can withdraw the liquidity. This is "rug-proof" in the sense that the AMM pool can't disappear.
+
+**2. Standard DEX behavior**: once on PancakeSwap, the token trades like any other. Any wallet, any aggregator, any trading bot can interact with it normally.
+
+Tokens that **don't graduate** stay on the bonding curve, which has limited reserves. If sentiment dies before graduation, the curve drains as people sell out. The last sellers get the worst price.
+
+## The lifecycle of a typical launch
+
+Most launches follow a predictable arc:
+
+**Hour 0**: Token launched. Initial buyers (often the launcher and a handful of early followers) push price 5-10x within minutes. Curve heats up.
+
+**Hours 1-6**: Twitter/Telegram pumping. Influencers may amplify if paid. Volume spikes. Two outcomes branch:
+
+- **Path A — Catches attention**: more buyers arrive, curve continues climbing. Volume builds organically. Reaches graduation threshold within days or hours.
+- **Path B — Stalls out**: initial pump dies, no follow-through buyers. Curve plateaus or starts declining. Most launches end here.
+
+**Days 1-7 (Path A only)**: Token graduates to PancakeSwap. Often a brief dump as graduation buyers take profit. Then either dies (most cases) or finds a sustained holder base and continues trading.
+
+The base rate of "any random launch graduates" is low — in single-digit percent, depending on the launchpad's overall traction. Of those that graduate, maybe 1 in 100 sustains for months.
+
+## Reading a Four.meme launch
+
+When you load a Four.meme token page, look for:
+
+- **Current market cap** vs **graduation threshold**: how close to graduating?
+- **% to graduation**: usually shown explicitly. 5% means very early; 95% means imminent grad.
+- **Holder count and concentration**: top 10 holders' share of supply.
+- **Buy/sell ratio over the last hour**: if sells dominate by a huge margin, the curve is unwinding.
+- **Time since launch**: most launches that survive past 24 hours have a real shot. Most that haven't graduated by 72 hours probably won't.
+- **Comments / chat**: social activity is a leading indicator.
+
+Four.meme also displays the deployer's wallet — which past tokens have they launched? If they've launched 50 tokens that all died, this is probably similar.
+
+## Buying early vs buying late on the curve
+
+Two strategies, two risk profiles:
+
+**Buy early (curve &lt;10% to graduation)**:
+- Lowest price, highest potential upside.
+- Highest probability of total loss (most launches die).
+- Best used with very small position sizes across many launches (basket approach).
+
+**Buy late (curve 70-95% to graduation)**:
+- Higher price, less upside.
+- Higher probability of graduation actually completing.
+- Risk: graduation dump can wipe out gains shortly after.
+
+**Buy after graduation**:
+- Highest price entry of the three.
+- Lower risk of total loss in the immediate term.
+- Trading in standard DEX environment with deeper liquidity.
+
+There's no objectively right answer. Choice depends on your risk tolerance and how confident you are in this specific token's social capture.
+
+## Bonding curve limitations
+
+Despite their elegance, bonding curves have downsides:
+
+- **Sandwich attacks** still apply if slippage tolerance is high.
+- **MEV bots** front-run popular launches, eating into early-buyer returns.
+- **Whale dumps** on the curve drop price disproportionately because the curve formula is more sensitive than a deep AMM pool.
+- **Trading is one-directional in volume**: you can only trade against the curve itself, not via routing through other pools.
+
+These limitations are also why graduation to PancakeSwap is desirable.
+
+## Summary
+
+- Bonding curves solve the "no liquidity at launch" problem with a self-contained pricing contract.
+- Four.meme uses bonding curves with a graduation threshold; survivors move to PancakeSwap with permanently locked LP.
+- Most launches don't graduate. Position size accordingly.
+- Pre- vs post-graduation entries have different risk profiles.
+
+The next lesson distinguishes a real launch attempt from a planned rugpull — the structural differences in contract code and team behavior.
