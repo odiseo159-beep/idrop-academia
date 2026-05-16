@@ -1,0 +1,315 @@
+{
+  "version": 1,
+  "lastUpdated": "2026-05-16",
+  "events": [
+    {
+      "id": "consensus-2026",
+      "date": "2026-05-14",
+      "endDate": "2026-05-16",
+      "category": "event",
+      "title": {
+        "es": "Consensus 2026 · Miami",
+        "en": "Consensus 2026 · Miami"
+      },
+      "summary": {
+        "es": "Conferencia anual de CoinDesk: regulación, infraestructura institucional y el estado de las stablecoins. Tres días de keynotes y mesas redondas.",
+        "en": "CoinDesk's annual conference: regulation, institutional infrastructure, and the state of stablecoins. Three days of keynotes and panels."
+      },
+      "source": "CoinDesk",
+      "link": "https://consensus.coindesk.com"
+    },
+    {
+      "id": "btc-pizza-day-2026",
+      "date": "2026-05-22",
+      "category": "commemorative",
+      "title": {
+        "es": "Bitcoin Pizza Day",
+        "en": "Bitcoin Pizza Day"
+      },
+      "summary": {
+        "es": "16 aniversario de la primera transacción comercial en Bitcoin: Laszlo Hanyecz pagó 10,000 BTC por dos pizzas en Florida, 22 de mayo de 2010.",
+        "en": "16th anniversary of the first commercial Bitcoin transaction: Laszlo Hanyecz paid 10,000 BTC for two pizzas in Florida, May 22, 2010."
+      },
+      "source": "Bitcoin Talk Archive",
+      "link": "https://bitcointalk.org/index.php?topic=137.0"
+    },
+    {
+      "id": "idrop-m02-release",
+      "date": "2026-05-28",
+      "category": "idrop",
+      "title": {
+        "es": "Lanzamiento Módulo 02 — Wallets y Seguridad",
+        "en": "Module 02 launch — Wallets & Security"
+      },
+      "summary": {
+        "es": "Cuatro lecciones sobre custodia, seed phrases, hardware wallets y vectores de ataque comunes. 450 XP totales.",
+        "en": "Four lessons on custody, seed phrases, hardware wallets and common attack vectors. 450 XP total."
+      },
+      "source": "IDROP"
+    },
+    {
+      "id": "berachain-tge-sample",
+      "date": "2026-06-04",
+      "category": "airdrop_tge",
+      "title": {
+        "es": "TGE · L1 con PoL",
+        "en": "TGE · PoL L1"
+      },
+      "summary": {
+        "es": "Ventana de claim del token nativo de una L1 basada en Proof-of-Liquidity. Snapshot ya tomado; los farmers de testnet pueden reclamar durante 30 días.",
+        "en": "Claim window for a Proof-of-Liquidity L1's native token. Snapshot already taken; testnet farmers have 30 days to claim."
+      },
+      "source": "Project announcement"
+    },
+    {
+      "id": "ethdenver-virtual-summer",
+      "date": "2026-06-12",
+      "endDate": "2026-06-14",
+      "category": "event",
+      "title": {
+        "es": "ETHDenver Summer Edition",
+        "en": "ETHDenver Summer Edition"
+      },
+      "summary": {
+        "es": "Versión de verano del hackatón ETHDenver, formato híbrido en línea + presencial en Denver. Enfocado en account abstraction y restaking.",
+        "en": "Summer edition of the ETHDenver hackathon, hybrid online + in-person in Denver. Focus on account abstraction and restaking."
+      },
+      "source": "ETHDenver",
+      "link": "https://www.ethdenver.com"
+    },
+    {
+      "id": "idrop-onchain-attestation",
+      "date": "2026-06-30",
+      "category": "idrop",
+      "title": {
+        "es": "XP onchain · Phase 1 en BSC testnet",
+        "en": "Onchain XP · Phase 1 on BSC testnet"
+      },
+      "summary": {
+        "es": "Deploy del contrato de attestation de XP en BSC testnet (chain 97). Wallets conectadas podrán sincronizar progreso local a onchain por primera vez.",
+        "en": "XP attestation contract deploys on BSC testnet (chain 97). Connected wallets can sync local progress to onchain for the first time."
+      },
+      "source": "IDROP roadmap"
+    },
+    {
+      "id": "bnb-beacon-anniversary",
+      "date": "2026-07-08",
+      "category": "commemorative",
+      "title": {
+        "es": "Aniversario BNB Beacon Chain",
+        "en": "BNB Beacon Chain anniversary"
+      },
+      "summary": {
+        "es": "9 años desde el lanzamiento de Binance Chain (rebautizada BNB Beacon en 2022). El día que BNB pasó de token ERC-20 a chain propia.",
+        "en": "9 years since the launch of Binance Chain (rebranded BNB Beacon in 2022). The day BNB moved from an ERC-20 token to its own chain."
+      },
+      "source": "BNB Chain"
+    },
+    {
+      "id": "monad-mainnet-sample",
+      "date": "2026-07-22",
+      "category": "airdrop_tge",
+      "title": {
+        "es": "Mainnet · L1 EVM paralelizada",
+        "en": "Mainnet · parallelized EVM L1"
+      },
+      "summary": {
+        "es": "Lanzamiento de mainnet con ejecución paralela y 10k TPS objetivo. Genesis airdrop para usuarios de testnet y participantes en CTFs comunitarios.",
+        "en": "Mainnet launch with parallel execution targeting 10k TPS. Genesis airdrop for testnet users and community CTF participants."
+      },
+      "source": "Project announcement"
+    },
+    {
+      "id": "eth-genesis-anniversary",
+      "date": "2026-07-30",
+      "category": "commemorative",
+      "title": {
+        "es": "Bloque génesis de Ethereum",
+        "en": "Ethereum genesis block"
+      },
+      "summary": {
+        "es": "11 años desde el primer bloque de Ethereum (30 julio 2015, 15:26:13 UTC). Bloque #0 firmado por Vitalik con la cita de Times de Bitcoin como homenaje.",
+        "en": "11 years since Ethereum's first block (July 30, 2015, 15:26:13 UTC). Block #0 signed by Vitalik with a nod to Bitcoin's Times headline."
+      },
+      "source": "Etherscan",
+      "link": "https://etherscan.io/block/0"
+    },
+    {
+      "id": "bsc-mainnet-anniversary",
+      "date": "2026-09-01",
+      "category": "commemorative",
+      "title": {
+        "es": "Aniversario BNB Smart Chain",
+        "en": "BNB Smart Chain anniversary"
+      },
+      "summary": {
+        "es": "6 años desde el lanzamiento de BSC (1 septiembre 2020) — EVM-compatible, 3 segundos de bloque, PoSA con 21 validadores activos.",
+        "en": "6 years since BSC's launch (September 1, 2020) — EVM-compatible, 3-second blocks, PoSA with 21 active validators."
+      },
+      "source": "BNB Chain"
+    },
+    {
+      "id": "eth-merge-anniversary",
+      "date": "2026-09-15",
+      "category": "commemorative",
+      "title": {
+        "es": "Aniversario The Merge",
+        "en": "The Merge anniversary"
+      },
+      "summary": {
+        "es": "4 años desde que Ethereum migró de Proof-of-Work a Proof-of-Stake. Reducción de ~99.95% en consumo energético en una sola actualización de red.",
+        "en": "4 years since Ethereum migrated from Proof-of-Work to Proof-of-Stake. A ~99.95% drop in energy use in a single network upgrade."
+      },
+      "source": "ethereum.org"
+    },
+    {
+      "id": "token2049-singapore",
+      "date": "2026-09-30",
+      "endDate": "2026-10-01",
+      "category": "event",
+      "title": {
+        "es": "TOKEN2049 Singapur",
+        "en": "TOKEN2049 Singapore"
+      },
+      "summary": {
+        "es": "La conferencia crypto más grande de Asia. Dos días en Marina Bay Sands con 300+ ponentes y la semana de side events más densa del año.",
+        "en": "Asia's largest crypto conference. Two days at Marina Bay Sands with 300+ speakers and the densest side-event week of the year."
+      },
+      "source": "TOKEN2049",
+      "link": "https://www.asia.token2049.com"
+    },
+    {
+      "id": "idrop-m03-release",
+      "date": "2026-10-08",
+      "category": "idrop",
+      "title": {
+        "es": "Lanzamiento Módulo 03 — DeFi en BNB",
+        "en": "Module 03 launch — DeFi on BNB"
+      },
+      "summary": {
+        "es": "Cinco lecciones cubriendo AMMs, lending, yield farming y los protocolos más relevantes del ecosistema BNB. 600 XP totales.",
+        "en": "Five lessons covering AMMs, lending, yield farming and the most relevant protocols in the BNB ecosystem. 600 XP total."
+      },
+      "source": "IDROP"
+    },
+    {
+      "id": "btc-whitepaper-day",
+      "date": "2026-10-31",
+      "category": "commemorative",
+      "title": {
+        "es": "Día del Whitepaper de Bitcoin",
+        "en": "Bitcoin Whitepaper Day"
+      },
+      "summary": {
+        "es": "18 aniversario del whitepaper de Satoshi: \"Bitcoin: A Peer-to-Peer Electronic Cash System\", publicado en la lista de criptografía el 31 octubre 2008.",
+        "en": "18th anniversary of Satoshi's whitepaper: \"Bitcoin: A Peer-to-Peer Electronic Cash System\", published to the cryptography mailing list on October 31, 2008."
+      },
+      "source": "bitcoin.org",
+      "link": "https://bitcoin.org/bitcoin.pdf"
+    },
+    {
+      "id": "devcon-bogota-sample",
+      "date": "2026-11-10",
+      "endDate": "2026-11-13",
+      "category": "event",
+      "title": {
+        "es": "Devcon · Bogotá",
+        "en": "Devcon · Bogotá"
+      },
+      "summary": {
+        "es": "Edición latinoamericana de Devcon, la conferencia oficial de la Ethereum Foundation. Cuatro días enfocados en core protocol, ZK y aplicaciones.",
+        "en": "Latin American edition of Devcon, the official Ethereum Foundation conference. Four days focused on core protocol, ZK, and applications."
+      },
+      "source": "Ethereum Foundation",
+      "link": "https://devcon.org"
+    },
+    {
+      "id": "celestia-restake-tge",
+      "date": "2026-11-19",
+      "category": "airdrop_tge",
+      "title": {
+        "es": "Claim · token de DA layer",
+        "en": "Claim · DA layer token"
+      },
+      "summary": {
+        "es": "Apertura del claim retroactivo para usuarios que rotaron data en la capa de disponibilidad. Snapshot tomado en bloque #1.250.000 (mainnet).",
+        "en": "Retroactive claim opens for users who rotated data through the availability layer. Snapshot taken at block #1,250,000 (mainnet)."
+      },
+      "source": "Protocol announcement"
+    },
+    {
+      "id": "eth-whitepaper-day",
+      "date": "2026-11-27",
+      "category": "commemorative",
+      "title": {
+        "es": "Día del Whitepaper de Ethereum",
+        "en": "Ethereum Whitepaper Day"
+      },
+      "summary": {
+        "es": "13 aniversario del whitepaper de Vitalik (noviembre 2013): \"A Next-Generation Smart Contract and Decentralized Application Platform\". El día que la idea cuajó.",
+        "en": "13th anniversary of Vitalik's whitepaper (November 2013): \"A Next-Generation Smart Contract and Decentralized Application Platform\". The day the idea took shape."
+      },
+      "source": "ethereum.org",
+      "link": "https://ethereum.org/en/whitepaper/"
+    },
+    {
+      "id": "idrop-anniversary",
+      "date": "2026-12-15",
+      "category": "idrop",
+      "title": {
+        "es": "Primer aniversario de IDROP",
+        "en": "IDROP first anniversary"
+      },
+      "summary": {
+        "es": "Un año desde el lanzamiento del MVP de IDROP Academia. Recap del recorrido, métricas abiertas y roadmap 2027.",
+        "en": "One year since the IDROP Academia MVP launched. Year-in-review, open metrics and 2027 roadmap."
+      },
+      "source": "IDROP"
+    },
+    {
+      "id": "year-end-2026",
+      "date": "2026-12-31",
+      "category": "commemorative",
+      "title": {
+        "es": "Cierre del año crypto 2026",
+        "en": "Crypto year-end 2026"
+      },
+      "summary": {
+        "es": "Bloques de cierre del año. Históricamente, los últimos días traen movimientos por rebalanceo de carteras institucionales y cierre fiscal en varias jurisdicciones.",
+        "en": "Year-end blocks. Historically the closing days bring institutional rebalancing and tax-year closings in several jurisdictions."
+      },
+      "source": "IDROP editorial"
+    },
+    {
+      "id": "ethdenver-2027",
+      "date": "2027-02-26",
+      "endDate": "2027-03-07",
+      "category": "event",
+      "title": {
+        "es": "ETHDenver 2027",
+        "en": "ETHDenver 2027"
+      },
+      "summary": {
+        "es": "Edición principal de ETHDenver, diez días de hackatón, talleres y side events. Tradicionalmente arranca la temporada de conferencias del año.",
+        "en": "Main ETHDenver edition, ten days of hackathon, workshops and side events. Traditionally kicks off the conference season for the year."
+      },
+      "source": "ETHDenver",
+      "link": "https://www.ethdenver.com"
+    },
+    {
+      "id": "btc-genesis-2027",
+      "date": "2027-01-03",
+      "category": "commemorative",
+      "title": {
+        "es": "Bloque génesis de Bitcoin",
+        "en": "Bitcoin genesis block"
+      },
+      "summary": {
+        "es": "18 aniversario del bloque génesis de Bitcoin (3 enero 2009), con la famosa cita del Times grabada en el coinbase: \"Chancellor on brink of second bailout for banks\".",
+        "en": "18th anniversary of Bitcoin's genesis block (January 3, 2009), with the famous Times headline encoded in the coinbase: \"Chancellor on brink of second bailout for banks\"."
+      },
+      "source": "Bitcoin blockchain",
+      "link": "https://www.blockchain.com/explorer/blocks/btc/0"
+    }
+  ]
+}

@@ -1342,3 +1342,32 @@ iframe[id^="twitter-widget-"] {
 html.idrop-splash-seen .v2-splash-fade {
   display: none !important;
 }
+
+/* ============================================================
+ * v2-calendar — responsive split between desktop month-grid and
+ * mobile event-list. Below 768px the grid (7-col fixed) is
+ * unusable, so we hide it and show a flat chronological list
+ * of events for the current month. Both trees are rendered to
+ * keep state in one component without JS-based viewport detection
+ * (no hydration mismatch, no flash on resize).
+ * ============================================================ */
+.v2-cal-mobile {
+  display: none;
+}
+@media (max-width: 767px) {
+  .v2-cal-desktop {
+    display: none !important;
+  }
+  .v2-cal-mobile {
+    display: block;
+  }
+}
+
+/* Calendar day-cell hover (desktop only) */
+.v2-calendar-cell:hover {
+  background: var(--color-ink-1) !important;
+}
+.v2-calendar-cell:focus-visible {
+  outline: 2px solid var(--color-bnb) !important;
+  outline-offset: -2px;
+}
