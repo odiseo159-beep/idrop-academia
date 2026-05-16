@@ -165,6 +165,21 @@ export function V2Masthead() {
           {navItem("portada", t("navPortada"))}
           {navItem("envivo", t("navEnVivo"))}
           {navItem("academia", t("navAcademia"))}
+          <I18nLink
+            href="/calendar"
+            className={`v2-nav-link v2-mono ${pathname === "/calendar" ? "active" : ""}`}
+            style={{
+              fontSize: 11,
+              letterSpacing: "0.18em",
+              textTransform: "uppercase",
+              color:
+                pathname === "/calendar"
+                  ? "var(--color-t-0)"
+                  : "var(--color-t-1)",
+            }}
+          >
+            {t("navCalendario")}
+          </I18nLink>
           {/* Eager prefetch on the most likely first-click destination so the
               lesson page is warm in cache before the user hovers. */}
           <I18nLink
