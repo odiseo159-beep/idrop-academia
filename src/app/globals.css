@@ -1245,6 +1245,53 @@ iframe[id^="twitter-widget-"] {
   66%, 100% { opacity: 1; }
 }
 
+/* Accessibility: respect prefers-reduced-motion. Replace the falling-cube
+ * animation with a static BNB-yellow rhombus that pulses gently. Same
+ * brand language, ~95% less GPU. Applies to both the cold-load splash and
+ * any in-page <V2Loader> instance. */
+@media (prefers-reduced-motion: reduce) {
+  .v2-loader::before,
+  .v2-loader::after,
+  .v2-loader .v2-loader-box,
+  .v2-loader .v2-loader-box > div,
+  .v2-loader .v2-loader-ground > div,
+  .v2-loader .v2-loader-ground > div::before,
+  .v2-loader .v2-loader-ground > div::after {
+    animation: none !important;
+  }
+  .v2-loader .v2-loader-box,
+  .v2-loader .v2-loader-ground {
+    display: none !important;
+  }
+  .v2-loader {
+    width: 80px;
+    height: 80px;
+  }
+  .v2-loader::before {
+    content: "";
+    display: block;
+    width: 40px;
+    height: 40px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(45deg);
+    background: var(--v2-loader-primary);
+    animation: v2-loader-pulse-reduced 1.8s ease-in-out infinite !important;
+    opacity: 1 !important;
+    right: auto;
+    bottom: auto;
+  }
+  .v2-loader::after {
+    display: none !important;
+  }
+}
+
+@keyframes v2-loader-pulse-reduced {
+  0%, 100% { opacity: 0.65; }
+  50%      { opacity: 1; }
+}
+
 /* Centered full-screen wrapper used by Next.js loading.tsx files */
 .v2-loader-screen {
   position: fixed;

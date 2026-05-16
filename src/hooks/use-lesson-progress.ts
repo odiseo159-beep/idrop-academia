@@ -9,6 +9,7 @@ import {
   isLessonComplete,
   getModuleCompleted,
 } from "@/lib/progress-store";
+import type { LessonMeta } from "@/lib/types";
 
 interface UseLessonProgressArgs {
   moduleSlug: string;
@@ -19,6 +20,13 @@ interface UseLessonProgressArgs {
   moduleTotalXp: number;
   /** XP this specific lesson awards on completion. */
   lessonXp: number;
+  /**
+   * Optional — all lessons in this module. When provided the hook returns
+   * the EXACT sum of XP across completed lessons; otherwise it falls back
+   * to the count × average approximation (acceptable when every lesson is
+   * worth the same XP, which is the case for the current curriculum).
+   */
+  moduleLessons?: ReadonlyArray<Pick<LessonMeta, "slug" | "xp">>;
 }
 
 export interface LessonProgressView {
@@ -80,6 +88,7 @@ export function useLessonProgress({
   moduleTotalLessons,
   moduleTotalXp,
   lessonXp,
+  moduleLessons,
 }: UseLessonProgressArgs): LessonProgressView {
   const hydrated = useIsHydrated();
   const account = useAccount();
@@ -93,19 +102,47 @@ export function useLessonProgress({
   const totalXp = useProgress((s) => s.totalXp);
   const streakDays = useProgress((s) => s.streakDays ?? 0);
 
+  // Subscribe to the per-lesson completion bitmap so xpEarned recomputes
+  // whenever any lesson in this module flips done — the selector returns a
+  // stable string so identity comparisons skip re-renders when unchanged.
+  const completedKey = useProgress((s) =>
+    moduleLessons
+      ? moduleLessons
+          .map((l) =>
+            isLessonComplete(s, moduleSlug, l.slug) ? "1" : "0"
+          )
+          .join("")
+      : ""
+  );
+
   // Snapshot streak BEFORE the user marks the lesson done this session so A3
   // can animate "03 → 04". We track via ref so it doesn't re-render every tick.
   const previousStreakRef = useRef<number | null>(null);
   const previousDays = previousStreakRef.current;
 
   const xpEarned = useMemo(() => {
-    // Approximate "XP earned in this module" = completed-count × avg lesson XP.
-    // The store doesn't track per-module XP separately yet, so we derive it.
-    // Good enough for the sidebar bar; A3 modal uses lessonXp directly.
+    // Exact path: caller passed `moduleLessons` → sum XP of completed lessons
+    // using the bitmap snapshot. This is accurate even when lessons in the
+    // module have different XP values.
+    if (moduleLessons && completedKey) {
+      let sum = 0;
+      for (let i = 0; i < moduleLessons.length; i++) {
+        if (completedKey[i] === "1") sum += moduleLessons[i].xp;
+      }
+      return sum;
+    }
+    // Approximate fallback: count × avg per-lesson XP. Good enough when every
+    // lesson is worth the same (today's curriculum: 100 XP each).
     if (!moduleTotalLessons) return 0;
     const perLesson = moduleTotalXp / moduleTotalLessons;
     return Math.round(moduleCompleted * perLesson);
-  }, [moduleCompleted, moduleTotalLessons, moduleTotalXp]);
+  }, [
+    moduleLessons,
+    completedKey,
+    moduleCompleted,
+    moduleTotalLessons,
+    moduleTotalXp,
+  ]);
 
   const modulePct = useMemo(() => {
     if (!moduleTotalLessons) return 0;

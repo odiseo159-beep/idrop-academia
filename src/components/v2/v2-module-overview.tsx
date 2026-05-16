@@ -181,6 +181,7 @@ export function V2ModuleOverview({ locale, module: mod, allModules }: V2ModuleOv
           pct={pct}
           completed={completed}
           totalLessons={mod.lessons.length}
+          totalMin={mod.durationMinutes}
           xpEarned={xpEarned}
           totalXp={mod.totalXp}
           streak={streak}
@@ -467,6 +468,8 @@ interface ProgressCardProps {
   pct: number;
   completed: number;
   totalLessons: number;
+  /** Real total minutes for the module — shown in the empty-state subtitle. */
+  totalMin: number;
   xpEarned: number;
   totalXp: number;
   streak: number;
@@ -566,6 +569,7 @@ function ProgressCardBigStat({
   pct,
   completed,
   totalLessons,
+  totalMin,
   t,
   currentLesson,
 }: ProgressCardProps) {
@@ -573,7 +577,7 @@ function ProgressCardBigStat({
     state === "blocked-no-wallet"
       ? t("subtitleBlocked", { done: completed, total: totalLessons })
       : state === "empty"
-        ? t("subtitleEmpty", { total: totalLessons, minutes: 45 })
+        ? t("subtitleEmpty", { total: totalLessons, minutes: totalMin })
         : pct === 100
           ? t("subtitleAllDone", { total: totalLessons })
           : t("subtitleInProgress", {
@@ -631,9 +635,11 @@ function ProgressCardBigStat({
 function ProgressCardLessonRail({
   totalLessons,
   completedFlags,
-  currentLesson,
 }: ProgressCardProps) {
-  const currentSlug = currentLesson?.slug;
+  // First non-completed slot is the "current" lesson highlight. If every
+  // lesson is done (-1), nothing gets the bnb-yellow treatment.
+  const firstPendingIndex = completedFlags.findIndex((f) => !f);
+
   return (
     <div>
       <div
@@ -676,12 +682,7 @@ function ProgressCardLessonRail({
       >
         {Array.from({ length: totalLessons }).map((_, i) => {
           const order = i + 1;
-          const isCurrent = currentSlug
-            ? `L.${String(order).padStart(2, "0")}` ===
-              `L.${String(i + 1).padStart(2, "0")}` &&
-              completedFlags.slice(0, i).every(Boolean) &&
-              !completedFlags[i]
-            : false;
+          const isCurrent = i === firstPendingIndex;
           return (
             <span
               key={i}
@@ -1146,7 +1147,9 @@ function TemarioRow({
     statusLabel = `✓ ${t("statusDone")} · ${t("statusDoneAgo")}`;
     statusColor = "var(--color-bnb)";
   } else if (isCurrent && !isFirst) {
-    statusLabel = `● ${t("statusViewing")} · 3:42 / ${lesson.duration}:00`;
+    // No real video-time tracking yet — keep the label honest. When we wire
+    // up the player's progress persistence we can show "X:YY / N:00" again.
+    statusLabel = `● ${t("statusViewing")}`;
     statusColor = "var(--color-bnb)";
   } else if (isCurrent && isFirst) {
     statusLabel = t("statusStartHere");

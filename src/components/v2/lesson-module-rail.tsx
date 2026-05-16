@@ -52,6 +52,9 @@ export function LessonModuleRail({
     moduleTotalLessons,
     moduleTotalXp,
     lessonXp,
+    // Pass the lessons array so the hook sums real per-lesson XP instead
+    // of using the count × average approximation.
+    moduleLessons: lessons,
   });
 
   return (
