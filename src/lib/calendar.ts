@@ -3,6 +3,7 @@ import type { Locale } from "@/lib/types";
 
 export const CALENDAR_CATEGORIES = [
   "airdrop_tge",
+  "hackathon",
   "event",
   "commemorative",
   "idrop",
@@ -40,6 +41,12 @@ export const CATEGORY_STYLE: Record<CalendarCategory, CategoryStyle> = {
     bgSoft: "rgba(240, 185, 11, 0.12)",
     border: "rgba(240, 185, 11, 0.36)",
     bgChip: "rgba(240, 185, 11, 0.08)",
+  },
+  hackathon: {
+    color: "#38bdf8",
+    bgSoft: "rgba(56, 189, 248, 0.13)",
+    border: "rgba(56, 189, 248, 0.36)",
+    bgChip: "rgba(56, 189, 248, 0.08)",
   },
   event: {
     color: "#c1c3cc",
