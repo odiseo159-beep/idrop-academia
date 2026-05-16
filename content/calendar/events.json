@@ -310,6 +310,70 @@
       },
       "source": "Bitcoin blockchain",
       "link": "https://www.blockchain.com/explorer/blocks/btc/0"
+    },
+    {
+      "id": "avax-latam-institucional-2026",
+      "date": "2026-05-15",
+      "endDate": "2026-05-17",
+      "category": "hackathon",
+      "title": {
+        "es": "Avalanche · Hackathon LatAm Institucional",
+        "en": "Avalanche · LatAm Institutional Hackathon"
+      },
+      "summary": {
+        "es": "Primer hackathon de Avalanche enfocado en retos reales de instituciones financieras latinoamericanas. Hub presencial en CDMX y satélites virtuales por la región. Pool de US$ 5.000 + créditos Oracle para los equipos finalistas.",
+        "en": "Avalanche's first hackathon focused on real challenges from major Latin American financial institutions. Mexico City main hub with virtual satellites across the region. US$ 5,000 prize pool plus Oracle credits for finalist teams."
+      },
+      "source": "build.avax.network",
+      "link": "https://build.avax.network/events/8a8ee2e9-d91d-4087-adba-c1221b72e407"
+    },
+    {
+      "id": "ethglobal-cannes-2026",
+      "date": "2026-07-04",
+      "endDate": "2026-07-06",
+      "category": "hackathon",
+      "title": {
+        "es": "ETHGlobal Cannes 2026",
+        "en": "ETHGlobal Cannes 2026"
+      },
+      "summary": {
+        "es": "Hackathon presencial de tres días en la Riviera francesa. La edición de verano que ETHGlobal organiza tradicionalmente en Europa, con cerca de 500 builders seleccionados y un pool típico superior a US$ 250.000.",
+        "en": "Three-day in-person hackathon on the French Riviera. ETHGlobal's traditional European summer edition, hosting ~500 selected builders with a typical prize pool above US$ 250,000."
+      },
+      "source": "ETHGlobal",
+      "link": "https://ethglobal.com"
+    },
+    {
+      "id": "ethglobal-buenos-aires-2026",
+      "date": "2026-09-12",
+      "endDate": "2026-09-14",
+      "category": "hackathon",
+      "title": {
+        "es": "ETHGlobal · Buenos Aires",
+        "en": "ETHGlobal · Buenos Aires"
+      },
+      "summary": {
+        "es": "Edición latinoamericana de ETHGlobal. Tres días de hackathon presencial enfocados en aplicaciones consumer, privacidad y herramientas para builders nuevos en el ecosistema.",
+        "en": "ETHGlobal's Latin American edition. Three days of in-person hackathon focused on consumer apps, privacy, and tooling for builders new to the ecosystem."
+      },
+      "source": "ETHGlobal",
+      "link": "https://ethglobal.com"
+    },
+    {
+      "id": "dorahacks-buidl-q4-2026",
+      "date": "2026-10-12",
+      "endDate": "2026-11-09",
+      "category": "hackathon",
+      "title": {
+        "es": "DoraHacks · BUIDL Season Q4",
+        "en": "DoraHacks · BUIDL Season Q4"
+      },
+      "summary": {
+        "es": "Temporada trimestral de DoraHacks con tracks paralelos en BNB Chain, Solana y EVM L2s. Pool combinado típicamente superior a US$ 1M, abierto a equipos remotos globales durante cuatro semanas.",
+        "en": "DoraHacks's quarterly BUIDL season with parallel tracks across BNB Chain, Solana and EVM L2s. Combined pool typically above US$ 1M, open to remote global teams for four weeks."
+      },
+      "source": "DoraHacks",
+      "link": "https://dorahacks.io"
     }
   ]
 }
