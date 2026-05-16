@@ -359,6 +359,7 @@ export async function V2Academia({ locale, modules }: V2AcademiaProps) {
           </div>
           <Link
             href={QUEST_OF_DAY_PATH}
+            prefetch
             className="v2-mono v2-cta-ghost v2-arrow-shift"
             style={{
               border: "1px solid var(--color-bnb)",

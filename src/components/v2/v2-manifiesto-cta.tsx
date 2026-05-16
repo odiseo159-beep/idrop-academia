@@ -1,19 +1,21 @@
 "use client";
 
-import { Link } from "@/i18n/navigation";
-
-function smoothScrollTo(id: string) {
-  const el = document.getElementById(id);
-  if (!el) return;
-  const top = el.getBoundingClientRect().top + window.scrollY - 12;
-  window.scrollTo({ top, behavior: "smooth" });
-}
-
 interface Props {
   ctaPrimary: string;
   ctaSecondary: string;
 }
 
+/**
+ * Both CTAs land on the §02 Academia section of the same landing — the
+ * difference is rhetorical (start vs. browse). Plain `<a href="#academia">`
+ * does in-page anchor navigation: scroll position changes, URL bar updates
+ * to `…/es#academia`, and there's no client-router redirect chain (which
+ * was previously sending users through `/learn` → meta-refresh → /#academia
+ * with a visible delay).
+ *
+ * Smooth scrolling is driven by `html { scroll-behavior: smooth }` in
+ * globals.css so the browser does it natively.
+ */
 export function V2ManifiestoCta({ ctaPrimary, ctaSecondary }: Props) {
   return (
     <div
@@ -24,9 +26,8 @@ export function V2ManifiestoCta({ ctaPrimary, ctaSecondary }: Props) {
         flexWrap: "wrap",
       }}
     >
-      <button
-        type="button"
-        onClick={() => smoothScrollTo("academia")}
+      <a
+        href="#academia"
         className="v2-mono v2-cta-primary v2-arrow-shift"
         style={{
           padding: "14px 18px",
@@ -41,12 +42,13 @@ export function V2ManifiestoCta({ ctaPrimary, ctaSecondary }: Props) {
           display: "inline-flex",
           alignItems: "center",
           gap: 10,
+          textDecoration: "none",
         }}
       >
         {ctaPrimary} <span className="v2-arrow">→</span>
-      </button>
-      <Link
-        href="/learn"
+      </a>
+      <a
+        href="#academia"
         className="v2-mono v2-cta-ghost"
         style={{
           padding: "14px 16px",
@@ -61,7 +63,7 @@ export function V2ManifiestoCta({ ctaPrimary, ctaSecondary }: Props) {
         }}
       >
         {ctaSecondary}
-      </Link>
+      </a>
     </div>
   );
 }

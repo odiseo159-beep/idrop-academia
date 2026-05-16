@@ -165,8 +165,11 @@ export function V2Masthead() {
           {navItem("portada", t("navPortada"))}
           {navItem("envivo", t("navEnVivo"))}
           {navItem("academia", t("navAcademia"))}
+          {/* Eager prefetch on the most likely first-click destination so the
+              lesson page is warm in cache before the user hovers. */}
           <I18nLink
             href={QUEST_OF_DAY_PATH}
+            prefetch
             className="v2-nav-link v2-mono"
             style={{
               fontSize: 11,
@@ -237,6 +240,7 @@ export function V2Masthead() {
 
         <I18nLink
           href={QUEST_OF_DAY_PATH}
+          prefetch
           className="v2-mono v2-cta-primary"
           style={{
             padding: "9px 14px",

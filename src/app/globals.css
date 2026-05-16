@@ -74,6 +74,23 @@
   html {
     color-scheme: dark;
     background: var(--color-background);
+    /* Smooth in-page anchor jumps for §02/§03 nav + manifesto CTAs.
+     * Offset by the sticky masthead height so the section header
+     * doesn't end up hidden under it after the jump. */
+    scroll-behavior: smooth;
+    scroll-padding-top: 80px;
+  }
+
+  /* Native view-transitions for cross-page navigation. Browsers that don't
+   * support the @view-transition rule ignore it entirely (Firefox, older
+   * Safari), so this degrades gracefully to instant cuts everywhere else. */
+  @view-transition {
+    navigation: auto;
+  }
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: 220ms;
+    animation-timing-function: cubic-bezier(0.2, 0.7, 0.2, 1);
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -83,6 +100,9 @@
       animation-duration: 0.01ms !important;
       animation-iteration-count: 1 !important;
       transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+    html {
       scroll-behavior: auto !important;
     }
   }
