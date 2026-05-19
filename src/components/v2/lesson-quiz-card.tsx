@@ -323,30 +323,32 @@ export function LessonQuizCard({
               {q.explanation ?? t("noExplanation")}
             </p>
           </div>
+          {/* Soft "Correcta" stamp replaces the old big +25 XP centerpiece. */}
           <div
-            className="v2-serif"
             style={{
-              fontSize: 56,
-              fontStyle: "italic",
-              color: "var(--color-bnb)",
-              lineHeight: 0.9,
-              fontWeight: 400,
-              letterSpacing: "-0.03em",
-              textAlign: "right",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "flex-end",
+              gap: 4,
             }}
           >
-            +{bonusXp}
             <span
-              className="v2-mono v2-mc"
+              className="v2-serif"
               style={{
-                display: "block",
-                fontStyle: "normal",
-                fontSize: 10,
-                marginTop: 4,
+                fontSize: 22,
+                fontStyle: "italic",
                 color: "var(--color-bnb)",
+                fontWeight: 400,
+                lineHeight: 1,
               }}
             >
-              XP {t("earned")}
+              ✓
+            </span>
+            <span
+              className="v2-mono v2-mc"
+              style={{ color: "var(--color-bnb)" }}
+            >
+              {t("earned")}
             </span>
           </div>
         </div>

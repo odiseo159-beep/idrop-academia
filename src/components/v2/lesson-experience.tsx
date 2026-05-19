@@ -278,10 +278,11 @@ export function LessonExperience({
         </div>
       </div>
 
-      {/* A3 — +XP moment */}
+      {/* A3 — lesson completion moment (insignia centerpiece) */}
       <LessonXpMoment
         open={xpOpen}
         onClose={() => setXpOpen(false)}
+        moduleSlug={moduleSlug}
         totalXp={lessonXp}
         breakdown={breakdown}
         moduleCode={moduleCode}

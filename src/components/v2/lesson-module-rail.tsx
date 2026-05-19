@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 import { Link as I18nLink } from "@/i18n/navigation";
 import { useLessonProgress } from "@/hooks/use-lesson-progress";
 import { useProgress, isLessonComplete } from "@/lib/progress-store";
+import { Insignia } from "@/components/v2/insignia";
 import type { LessonMeta } from "@/lib/types";
 
 interface LessonModuleRailProps {
@@ -97,10 +98,6 @@ export function LessonModuleRail({
           style={{ marginTop: 8, color: "var(--color-t-3)" }}
         >
           {moduleTotalLessons} {t("lessShort")} · {moduleTotalMin} {t("meta.min")}
-          {" · "}
-          <span style={{ color: "var(--color-bnb)" }}>
-            +{moduleTotalXp} XP
-          </span>
         </div>
       </div>
 
@@ -122,74 +119,55 @@ export function LessonModuleRail({
         ))}
       </div>
 
-      {/* XP card */}
+      {/* Insignia preview — replaces the old XP card. Locked while the module
+          is in progress; switches to "earned" once every lesson is complete. */}
       <div
         style={{
           padding: "14px 18px",
           borderTop: "1px solid var(--color-line-1)",
           display: "flex",
-          alignItems: "baseline",
+          alignItems: "center",
           gap: 14,
         }}
       >
-        <div>
-          <div
-            className="v2-mono v2-mc"
-            style={{ color: "var(--color-t-3)" }}
-          >
-            {t("xpAccumulated")}
-          </div>
-          <div
-            className="v2-serif v2-tnum"
-            style={{
-              fontSize: 28,
-              fontStyle: "italic",
-              color: "var(--color-bnb)",
-              lineHeight: 1,
-              fontWeight: 400,
-              letterSpacing: "-0.02em",
-              marginTop: 4,
-            }}
-          >
-            {progress.hydrated ? progress.module.xpEarned : 0}
-          </div>
-        </div>
-        <div
-          style={{
-            width: 1,
-            height: 28,
-            background: "var(--color-line-1)",
-          }}
+        <Insignia
+          moduleSlug={moduleSlug}
+          size="md"
+          state={
+            progress.hydrated && progress.module.completed >= moduleTotalLessons
+              ? "earned"
+              : "locked"
+          }
         />
-        <div>
+        <div style={{ minWidth: 0, flex: 1 }}>
           <div
             className="v2-mono v2-mc"
             style={{ color: "var(--color-t-3)" }}
           >
-            {t("ofThisModule")}
+            {t("insigniaPreviewLabel")}
           </div>
           <div
             className="v2-serif"
             style={{
-              fontSize: 16,
+              fontSize: 14,
               color: "var(--color-t-1)",
               marginTop: 4,
             }}
           >
             <span style={{ fontStyle: "italic" }} className="v2-tnum">
-              {progress.hydrated ? progress.module.xpEarned : 0}
+              {progress.hydrated ? progress.module.completed : 0}
             </span>{" "}
             <span
               className="v2-mono v2-mc v2-tnum"
               style={{ color: "var(--color-t-3)" }}
             >
-              / {moduleTotalXp}
+              / {moduleTotalLessons} {t("lessShort")}
             </span>
           </div>
         </div>
       </div>
 
-      {/* Progress bar */}
+      {/* Progress bar — by lesson count instead of XP */}
       <div
         style={{
           height: 3,
@@ -201,7 +179,7 @@ export function LessonModuleRail({
           style={{
             position: "absolute",
             inset: 0,
-            width: `${(progress.hydrated ? progress.module.xpEarned : 0) / moduleTotalXp * 100}%`,
+            width: `${(progress.hydrated ? progress.module.pct : 0)}%`,
             background: "var(--color-bnb)",
             transition: "width 0.5s ease",
           }}
@@ -328,11 +306,6 @@ function LessonRow({ lesson, moduleSlug, isCurrent }: LessonRowProps) {
             <span className="v2-tnum">
               {lesson.duration} {t("meta.min")}
             </span>
-            <span>·</span>
-            <span>
-              <span style={{ color: "var(--color-bnb)" }}>+</span>
-              <span className="v2-tnum">{lesson.xp}</span> XP
-            </span>
             {isCurrent && (
               <>
                 <span>·</span>
@@ -345,7 +318,7 @@ function LessonRow({ lesson, moduleSlug, isCurrent }: LessonRowProps) {
               <>
                 <span>·</span>
                 <span style={{ color: "var(--color-bnb)" }}>
-                  ✓ {t("earned")}
+                  {t("earned")}
                 </span>
               </>
             )}

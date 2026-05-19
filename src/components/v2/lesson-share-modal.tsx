@@ -564,43 +564,41 @@ function ShareCard({
         {moduleCode} · {lessonCode}
       </div>
 
-      {/* center — XP + title */}
+      {/* center — completion stamp + title */}
       <div style={{ position: "absolute", left: 18, top: 56, right: 18 }}>
         <div
-          className="v2-serif v2-tnum"
+          className="v2-mono v2-mc"
           style={{
-            fontSize: 64,
-            lineHeight: 0.86,
-            fontStyle: "italic",
-            fontWeight: 300,
-            letterSpacing: "-0.035em",
             color: "var(--color-bnb)",
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
           }}
         >
-          +{xp}{" "}
           <span
-            className="v2-mono"
+            aria-hidden
+            className="v2-serif"
             style={{
-              fontSize: 16,
-              color: "var(--color-bnb)",
-              letterSpacing: "0.14em",
-              fontStyle: "normal",
-              verticalAlign: "top",
+              fontSize: 22,
+              fontStyle: "italic",
+              fontWeight: 500,
+              lineHeight: 1,
             }}
           >
-            XP
+            ✓
           </span>
+          LECCIÓN COMPLETADA
         </div>
         <div
           className="v2-serif"
           style={{
-            fontSize: 22,
+            fontSize: 28,
             lineHeight: 1.08,
-            letterSpacing: "-0.014em",
+            letterSpacing: "-0.018em",
             color: "var(--color-t-0)",
-            marginTop: 10,
+            marginTop: 16,
             fontWeight: 500,
-            maxWidth: 320,
+            maxWidth: 360,
           }}
         >
           {lessonTitle}
@@ -637,7 +635,7 @@ function ShareCard({
           }}
         >
           <span className="v2-mono v2-mc" style={{ color: "var(--color-t-3)" }}>
-            RACHA
+            DÍAS
           </span>
           <span
             className="v2-serif v2-tnum"
@@ -650,7 +648,7 @@ function ShareCard({
             {String(streakDays).padStart(2, "0")}
           </span>
           <span className="v2-mono v2-mc" style={{ color: "var(--color-t-3)" }}>
-            DÍAS
+            ESTUDIANDO
           </span>
           <span
             style={{ width: 1, height: 12, background: "var(--color-line-2)" }}

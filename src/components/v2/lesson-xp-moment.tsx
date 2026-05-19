@@ -3,13 +3,16 @@
 import { useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import * as Dialog from "@radix-ui/react-dialog";
+import { Insignia } from "@/components/v2/insignia";
 
 interface LessonXpMomentProps {
   open: boolean;
   onClose: () => void;
-  /** Total XP earned for this lesson (sum of breakdown). */
+  /** Module slug — drives the Insignia visual (numeral + tone). */
+  moduleSlug: string;
+  /** Lesson XP (legacy prop, no longer rendered as a number). Kept for callsite compatibility. */
   totalXp: number;
-  /** Per-source breakdown (Video, Lectura, Quiz). */
+  /** Per-source breakdown (Video, Lectura, Quiz) — now shown as checklist rather than XP rows. */
   breakdown: { label: string; value: number; bonus?: boolean }[];
   /** Module label "M.01" and lesson label "L.01" for the kicker line. */
   moduleCode: string;
@@ -34,14 +37,20 @@ interface LessonXpMomentProps {
 }
 
 /**
- * LessonXpMoment — the editorial "+100 XP" celebration shown right after the
- * user marks a lesson complete (A3). Built on Radix Dialog for focus-trap +
- * Esc + scroll-lock. Sparse confetti dots float against the scrim.
+ * LessonXpMoment — celebration shown right after a lesson is marked complete (A3).
+ *
+ * Insignia paradigm: the centerpiece is the module's editorial seal in
+ * "locked" state for non-final lessons (with "N lessons to your insignia"
+ * subhead), or "earned" state for the final lesson of a module (with
+ * "Insignia unlocked." headline).
+ *
+ * Built on Radix Dialog for focus-trap + Esc + scroll-lock. Sparse confetti
+ * still floats against the scrim — the moment matters, even without numbers.
  */
 export function LessonXpMoment({
   open,
   onClose,
-  totalXp,
+  moduleSlug,
   breakdown,
   moduleCode,
   lessonCode,
@@ -149,65 +158,60 @@ export function LessonXpMoment({
             </span>
           </div>
 
-          {/* Heading */}
-          <div
-            className="v2-serif"
-            style={{
-              fontSize: 18,
-              fontStyle: "italic",
-              color: "var(--color-t-2)",
-              marginTop: 22,
-              textAlign: "center",
-              fontWeight: 400,
-            }}
-          >
-            {t("headline")}
-          </div>
+          {/* Heading — switches between "Lesson completed" and "Insignia unlocked" */}
+          {(() => {
+            const isFinal = moduleCompletedLessons >= moduleTotalLessons && moduleTotalLessons > 0;
+            const remaining = Math.max(0, moduleTotalLessons - moduleCompletedLessons);
+            return (
+              <>
+                <div
+                  className="v2-serif"
+                  style={{
+                    fontSize: isFinal ? 28 : 22,
+                    fontStyle: "italic",
+                    color: isFinal ? "var(--color-bnb)" : "var(--color-t-0)",
+                    marginTop: 22,
+                    textAlign: "center",
+                    fontWeight: 400,
+                    letterSpacing: "-0.018em",
+                  }}
+                >
+                  {isFinal ? t("headlineInsignia") : t("headline")}
+                </div>
 
-          {/* BIG XP counter */}
-          <div
-            style={{
-              marginTop: 8,
-              textAlign: "center",
-              position: "relative",
-            }}
-          >
-            <div
-              className="v2-serif v2-tnum"
-              style={{
-                fontSize: 168,
-                lineHeight: 0.86,
-                fontStyle: "italic",
-                fontWeight: 300,
-                letterSpacing: "-0.045em",
-                color: "var(--color-bnb)",
-              }}
-            >
-              <span
-                style={{
-                  color: "var(--color-t-2)",
-                  fontSize: 88,
-                  marginRight: 8,
-                  verticalAlign: "top",
-                }}
-              >
-                +
-              </span>
-              {totalXp}
-            </div>
-            <div
-              className="v2-mono v2-mc"
-              style={{
-                color: "var(--color-bnb)",
-                marginTop: 4,
-                letterSpacing: "0.22em",
-              }}
-            >
-              XP &nbsp;·&nbsp; {t("earnedUpper")}
-            </div>
-          </div>
+                {/* Insignia centerpiece — locked while progressing, earned on the final lesson */}
+                <div
+                  style={{
+                    marginTop: 28,
+                    display: "flex",
+                    justifyContent: "center",
+                  }}
+                >
+                  <Insignia
+                    moduleSlug={moduleSlug}
+                    state={isFinal ? "earned" : "locked"}
+                    size="xl"
+                  />
+                </div>
 
-          {/* Breakdown */}
+                {/* Subhead — context for the centerpiece */}
+                <div
+                  className="v2-mono v2-mc"
+                  style={{
+                    marginTop: 24,
+                    textAlign: "center",
+                    color: isFinal ? "var(--color-bnb)" : "var(--color-t-3)",
+                  }}
+                >
+                  {isFinal
+                    ? t("subheadEarned")
+                    : t("subheadProgress", { count: remaining })}
+                </div>
+              </>
+            );
+          })()}
+
+          {/* Progress checklist (was XP breakdown — now just shows what was done) */}
           <div
             style={{
               marginTop: 22,
@@ -220,21 +224,13 @@ export function LessonXpMoment({
               className="v2-mono v2-mc"
               style={{
                 marginBottom: 8,
-                display: "flex",
-                justifyContent: "space-between",
                 color: "var(--color-t-3)",
               }}
             >
-              <span>{t("breakdown")}</span>
-              <span style={{ color: "var(--color-bnb)" }}>+{totalXp} {t("total")}</span>
+              {t("breakdown")}
             </div>
             {breakdown.map((row, i) => (
-              <BreakdownRow
-                key={i}
-                label={row.label}
-                value={`+${row.value}`}
-                bonus={row.bonus}
-              />
+              <BreakdownRow key={i} label={row.label} />
             ))}
           </div>
 
@@ -340,42 +336,34 @@ export function LessonXpMoment({
 
 function BreakdownRow({
   label,
-  value,
-  bonus,
 }: {
   label: string;
-  value: string;
-  bonus?: boolean;
 }) {
   return (
     <div
       style={{
         display: "flex",
-        alignItems: "baseline",
+        alignItems: "center",
         gap: 10,
         paddingTop: 6,
         paddingBottom: 6,
       }}
     >
-      <span style={{ fontSize: 13, color: "var(--color-t-1)", flex: 1 }}>
-        {label}
-      </span>
-      {bonus && (
-        <span className="v2-mono v2-mc" style={{ color: "var(--color-t-3)" }}>
-          BONUS
-        </span>
-      )}
       <span
-        className="v2-serif v2-tnum"
+        aria-hidden
         style={{
-          fontSize: 18,
-          fontStyle: "italic",
+          width: 14,
+          height: 14,
+          display: "inline-flex",
+          alignItems: "center",
+          justifyContent: "center",
           color: "var(--color-bnb)",
-          fontWeight: 400,
-          letterSpacing: "-0.015em",
         }}
       >
-        {value}
+        ✓
+      </span>
+      <span style={{ fontSize: 13, color: "var(--color-t-1)", flex: 1 }}>
+        {label}
       </span>
     </div>
   );
@@ -392,10 +380,8 @@ function StreakBlock({
   label: string;
   daysLabel: string;
 }) {
-  // 7-day visual: filled = streakDays clamped to 7, last-filled gets the ring
-  const visualDays = Array.from({ length: 7 }).map((_, i) => i < streakDays);
-  const newIndex = Math.min(streakDays - 1, 6);
-
+  // Softened: keep the celebratory bump animation (strikethrough "03→04")
+  // but drop the 7-dot pressure row — the moment isn't a scoreboard.
   return (
     <div>
       <div
@@ -435,22 +421,6 @@ function StreakBlock({
         <span className="v2-mono v2-mc" style={{ color: "var(--color-t-3)" }}>
           {daysLabel}
         </span>
-      </div>
-      <div style={{ display: "flex", gap: 4, marginTop: 8 }}>
-        {visualDays.map((on, i) => (
-          <span
-            key={i}
-            style={{
-              width: 14,
-              height: 14,
-              border: "1px solid var(--color-line-2)",
-              background: on ? "var(--color-bnb)" : "transparent",
-              display: "inline-block",
-              boxShadow:
-                i === newIndex ? "0 0 0 2px rgba(240,185,11,0.25)" : "none",
-            }}
-          />
-        ))}
       </div>
     </div>
   );
