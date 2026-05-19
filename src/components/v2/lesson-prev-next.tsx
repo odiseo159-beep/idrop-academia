@@ -146,8 +146,7 @@ export async function LessonPrevNext({
                 style={{ marginTop: 4, color: "var(--color-t-3)" }}
               >
                 {next.durationMin} min ·{" "}
-                <span style={{ color: "var(--color-bnb)" }}>+{next.xp} XP</span>{" "}
-                · {t("unlocked")}
+                <span style={{ color: "var(--color-bnb)" }}>{t("unlocked")}</span>
               </div>
             )}
           </span>

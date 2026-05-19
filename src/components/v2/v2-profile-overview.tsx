@@ -12,36 +12,11 @@ import {
 } from "@/lib/progress-store";
 import { QUEST_OF_DAY_PATH } from "@/lib/quest-of-day";
 import { moduleCodeFor } from "@/lib/module-order";
+import { Insignia, InsigniaGallery } from "@/components/v2/insignia";
 import type { Module } from "@/lib/types";
 
 interface V2ProfileOverviewProps {
   modules: Module[];
-}
-
-const LEVELS = [
-  { key: "spectator" as const, min: 0, max: 99 },
-  { key: "initiate" as const, min: 100, max: 299 },
-  { key: "apprentice" as const, min: 300, max: 699 },
-  { key: "adept" as const, min: 700, max: 1299 },
-  { key: "master" as const, min: 1300, max: 2199 },
-  { key: "sage" as const, min: 2200, max: Infinity },
-];
-
-function getLevel(xp: number) {
-  const idx = LEVELS.findIndex((l) => xp >= l.min && xp <= l.max);
-  const safeIdx = idx === -1 ? 0 : idx;
-  const current = LEVELS[safeIdx];
-  const next = LEVELS[safeIdx + 1];
-  const span = next ? next.min - current.min : 1;
-  const into = xp - current.min;
-  const percent = next ? Math.min(100, Math.round((into / span) * 100)) : 100;
-  return {
-    key: current.key,
-    level: safeIdx + 1,
-    nextKey: next?.key,
-    percent,
-    toNext: next ? next.min - xp : 0,
-  };
 }
 
 function formatRelative(ts: number, t: ReturnType<typeof useTranslations>): string {
@@ -58,12 +33,12 @@ function formatRelative(ts: number, t: ReturnType<typeof useTranslations>): stri
  * Two top-level shapes:
  *   - Wallet NOT connected: hero pitch + big ConnectButton + faint preview of
  *     local progress that will sync onchain on first connect.
- *   - Wallet connected: full hero (level + XP serif italic), four-stat row
- *     (XP / Lecciones / Módulos / Racha), in-progress module cards, recent
- *     activity feed, danger-zone reset footer.
+ *   - Wallet connected: 4-stat row (Insignias / Lecciones / Módulos / Días
+ *     activos), insignia gallery (6 diamonds), in-progress modules,
+ *     recent activity feed, danger-zone reset footer.
  *
- * Everything still reads from `progressStore` (localStorage) today; Phase 1
- * will swap the read to a wagmi contract call without touching this view.
+ * XP still persists in `progressStore` for Phase 1 onchain attestation, but
+ * is no longer surfaced visually — the insignias are the public reward.
  */
 export function V2ProfileOverview({ modules }: V2ProfileOverviewProps) {
   const t = useTranslations("v2.profile");
@@ -74,7 +49,6 @@ export function V2ProfileOverview({ modules }: V2ProfileOverviewProps) {
     query: { enabled: !!account.address },
   });
 
-  const totalXp = useProgress((s) => s.totalXp);
   const lessonsCount = useProgress(
     (s) => Object.keys(s.completedLessons).length
   );
@@ -93,11 +67,9 @@ export function V2ProfileOverview({ modules }: V2ProfileOverviewProps) {
       .join("|")
   );
 
-  const xp = hydrated ? totalXp : 0;
-  const level = getLevel(xp);
-
   const startedSlugs = startedKey ? startedKey.split(",") : [];
   const completedSlugs = completedKey ? completedKey.split(",") : [];
+  const allModuleSlugs = useMemo(() => modules.map((m) => m.slug), [modules]);
 
   const inProgressModules = useMemo(
     () =>
@@ -215,7 +187,7 @@ export function V2ProfileOverview({ modules }: V2ProfileOverviewProps) {
         />
       </div>
 
-      {/* BIG STAT ROW */}
+      {/* BIG STAT ROW — Insignias is the new headline metric (was XP) */}
       <div
         style={{
           marginTop: 36,
@@ -227,9 +199,13 @@ export function V2ProfileOverview({ modules }: V2ProfileOverviewProps) {
         }}
       >
         <BigStat
-          label={t("statXp")}
-          value={String(xp)}
-          unit={t("statXpUnit")}
+          label={t("statInsignias")}
+          value={
+            hydrated
+              ? `${String(completedCount).padStart(2, "0")}/${String(modules.length).padStart(2, "0")}`
+              : `00/${String(modules.length).padStart(2, "0")}`
+          }
+          unit={t("statInsigniasUnit")}
           accent="bnb"
         />
         <BigStat
@@ -246,82 +222,54 @@ export function V2ProfileOverview({ modules }: V2ProfileOverviewProps) {
           }
           unit={t("statModulesUnit")}
         />
-        <StreakStat
+        <SoftStreak
           days={streakDays}
           label={t("statStreak")}
           unit={t("statStreakUnit")}
         />
       </div>
 
-      {/* LEVEL + PROGRESS */}
-      <div style={{ marginTop: 28, paddingBottom: 28 }}>
+      {/* INSIGNIAS GALLERY — 6 diamonds, locked or earned */}
+      <div
+        style={{
+          marginTop: 36,
+          paddingBottom: 36,
+          borderBottom: "1px solid var(--color-line-1)",
+        }}
+      >
         <div
-          style={{
-            display: "flex",
-            alignItems: "baseline",
-            gap: 14,
-            flexWrap: "wrap",
-          }}
+          className="v2-mono v2-mc"
+          style={{ color: "var(--color-t-3)", marginBottom: 22 }}
         >
-          <span
-            className="v2-mono v2-mc"
-            style={{ color: "var(--color-t-3)" }}
-          >
-            {t("levelLabel")}
-          </span>
-          <span
-            className="v2-serif v2-tnum"
-            style={{
-              fontSize: 28,
-              fontStyle: "italic",
-              color: "var(--color-bnb)",
-              fontWeight: 400,
-              letterSpacing: "-0.02em",
-            }}
-          >
-            {String(level.level).padStart(2, "0")}
-          </span>
-          <span
-            className="v2-serif"
-            style={{
-              fontSize: 22,
-              color: "var(--color-t-0)",
-              fontStyle: "italic",
-              fontWeight: 400,
-            }}
-          >
-            {t(`levels.${level.key}`)}
-          </span>
-          <span style={{ flex: 1 }} />
-          {level.nextKey && (
-            <span
-              className="v2-mono v2-mc"
-              style={{ color: "var(--color-t-3)" }}
-            >
-              {t("toNext", {
-                xp: level.toNext,
-                next: t(`levels.${level.nextKey}`),
-              })}
-            </span>
-          )}
+          {t("insigniasGalleryLabel")}
         </div>
         <div
           style={{
-            marginTop: 14,
-            height: 3,
-            background: "var(--color-line-1)",
-            position: "relative",
+            display: "flex",
+            alignItems: "center",
+            gap: 28,
+            flexWrap: "wrap",
           }}
         >
-          <div
-            style={{
-              position: "absolute",
-              inset: 0,
-              width: `${level.percent}%`,
-              background: "var(--color-bnb)",
-              transition: "width 0.5s ease",
-            }}
+          <InsigniaGallery
+            moduleSlugs={allModuleSlugs}
+            completedSlugs={hydrated ? completedSlugs : []}
+            size="lg"
+            gap={36}
           />
+          {!hydrated || completedSlugs.length === 0 ? (
+            <span
+              className="v2-serif"
+              style={{
+                fontSize: 14,
+                fontStyle: "italic",
+                color: "var(--color-t-3)",
+                maxWidth: 320,
+              }}
+            >
+              {t("insigniasGalleryEmpty")}
+            </span>
+          ) : null}
         </div>
       </div>
 
@@ -514,8 +462,11 @@ export function V2ProfileOverview({ modules }: V2ProfileOverviewProps) {
                       {moduleCodeFor(moduleSlug)} · L.
                       {String(lesson?.order ?? 0).padStart(2, "0")}
                     </span>
-                    <span className="v2-tnum" style={{ color: "var(--color-bnb)" }}>
-                      +{lesson?.xp ?? 0} XP
+                    <span
+                      style={{ color: "var(--color-bnb)" }}
+                      aria-hidden
+                    >
+                      ✓
                     </span>
                   </div>
                   <div
@@ -748,7 +699,7 @@ function BigStat({
   );
 }
 
-function StreakStat({
+function SoftStreak({
   days,
   label,
   unit,
@@ -757,7 +708,7 @@ function StreakStat({
   label: string;
   unit: string;
 }) {
-  const visualDays = Array.from({ length: 7 }).map((_, i) => i < days);
+  // Softened: same visual weight as other BigStats, no pressure 7-dot row.
   return (
     <div>
       <div
@@ -774,28 +725,13 @@ function StreakStat({
           letterSpacing: "-0.025em",
           color: "var(--color-t-0)",
           fontWeight: 400,
-          fontStyle: "italic",
         }}
       >
         {String(days).padStart(2, "0")}
       </div>
-      <div style={{ display: "flex", gap: 4, marginTop: 10 }}>
-        {visualDays.map((on, i) => (
-          <span
-            key={i}
-            style={{
-              width: 12,
-              height: 12,
-              border: "1px solid var(--color-line-2)",
-              background: on ? "var(--color-bnb)" : "transparent",
-              display: "inline-block",
-            }}
-          />
-        ))}
-      </div>
       <div
         className="v2-mono v2-mc"
-        style={{ marginTop: 8, color: "var(--color-t-2)" }}
+        style={{ marginTop: 10, color: "var(--color-t-2)" }}
       >
         {unit}
       </div>

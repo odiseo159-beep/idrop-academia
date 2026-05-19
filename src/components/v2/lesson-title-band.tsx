@@ -146,8 +146,7 @@ export async function LessonTitleBand({
             )}
           </div>
           <div>
-            {t("meta.quiz")}&nbsp;&nbsp;&nbsp;30 s ·{" "}
-            <span style={{ color: "var(--color-bnb)" }}>+{quizXp} XP</span>
+            {t("meta.quiz")}&nbsp;&nbsp;&nbsp;~30 s
             {completed && (
               <>
                 {" · "}
@@ -159,8 +158,8 @@ export async function LessonTitleBand({
           </div>
           <div style={{ marginTop: 6, color: "var(--color-bnb)" }}>
             {completed
-              ? t("meta.xpEarnedNow", { xp: totalXp })
-              : t("meta.xpOnComplete", { xp: totalXp })}
+              ? t("meta.xpEarnedNow")
+              : t("meta.xpOnComplete")}
           </div>
         </div>
       </div>

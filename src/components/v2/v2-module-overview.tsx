@@ -11,6 +11,7 @@ import {
   getModuleCompleted,
 } from "@/lib/progress-store";
 import { moduleCodeFor, orderBySlug, MODULE_ORDER } from "@/lib/module-order";
+import { Insignia } from "@/components/v2/insignia";
 import type { LessonMeta, Locale, Module } from "@/lib/types";
 
 interface V2ModuleOverviewProps {
@@ -707,11 +708,13 @@ function ProgressCardLessonRail({
 
 function ProgressCardXpStreakRow({
   state,
-  xpEarned,
-  totalXp,
+  completed,
+  totalLessons,
+  moduleSlug,
   streak,
   t,
 }: ProgressCardProps) {
+  const isFullyDone = completed >= totalLessons && totalLessons > 0;
   return (
     <div
       style={{
@@ -725,34 +728,41 @@ function ProgressCardXpStreakRow({
       <div>
         <div
           className="v2-mono v2-mc"
-          style={{ color: "var(--color-t-3)", marginBottom: 4 }}
+          style={{ color: "var(--color-t-3)", marginBottom: 6 }}
         >
-          {state === "blocked-no-wallet" ? t("xpLocalLabel") : t("xpModuleLabel")}
+          {state === "blocked-no-wallet"
+            ? t("insigniaLocalLabel")
+            : t("insigniaModuleLabel")}
         </div>
         <div
           style={{
             display: "flex",
-            alignItems: "baseline",
-            gap: 6,
+            alignItems: "center",
+            gap: 10,
           }}
         >
+          <Insignia
+            moduleSlug={moduleSlug}
+            size="sm"
+            state={isFullyDone ? "earned" : "locked"}
+          />
           <span
             className="v2-serif v2-tnum"
             style={{
-              fontSize: 28,
+              fontSize: 22,
               fontStyle: "italic",
               color: "var(--color-bnb)",
               fontWeight: 400,
               lineHeight: 1,
             }}
           >
-            {xpEarned}
+            {completed}
           </span>
           <span
             className="v2-mono v2-mc v2-tnum"
             style={{ color: "var(--color-t-3)" }}
           >
-            / {totalXp} XP
+            / {totalLessons} {t("statLessonsUnit")}
           </span>
         </div>
       </div>
@@ -937,9 +947,9 @@ function StatsStrip({
       />
       <Sep />
       <StatColumn
-        label={t("statXpAvail")}
-        value={`+${totalXp}`}
-        unit="XP"
+        label={t("statInsignia")}
+        value="I"
+        unit={t("statInsigniaUnit")}
       />
       <Sep />
       <StatColumn
@@ -1063,7 +1073,7 @@ function TemarioHeader({
         style={{ color: "var(--color-t-3)" }}
       >
         L.01 — L.{String(totalLessons).padStart(2, "0")} ·{" "}
-        {t("temarioMeta", { total: totalLessons, min: totalMin, xp: totalXp })}
+        {t("temarioMeta", { total: totalLessons, min: totalMin })}
       </span>
       <span style={{ flex: 1 }} />
       <span
@@ -1294,7 +1304,7 @@ function TemarioRow({
           {statusLabel}
         </span>
 
-        {/* Min + XP */}
+        {/* Duration only (XP removed for less-aggressive UI) */}
         <span
           className="v2-mono v2-mc"
           style={{
@@ -1306,9 +1316,6 @@ function TemarioRow({
           }}
         >
           <span className="v2-tnum">{lesson.duration} {t("minShort")}</span>
-          <span style={{ color: "var(--color-bnb)" }}>
-            +<span className="v2-tnum">{lesson.xp}</span> XP
-          </span>
         </span>
 
         {/* Chevron */}
@@ -1468,8 +1475,7 @@ function ExpandedRowDetail({
             {t("metaReading")} · <span className="v2-tnum">{readingMin}</span> {t("minShort")}
           </div>
           <div>
-            {t("metaQuiz")} ·{" "}
-            <span style={{ color: "var(--color-bnb)" }}>+25 XP</span>
+            {t("metaQuiz")}
           </div>
         </div>
         <I18nLink
@@ -1765,12 +1771,7 @@ function SuggestedNextCard({
           <span className="v2-tnum">{next.durationMinutes}</span>{" "}
           {t("minShort")}
         </span>
-        <span
-          className="v2-mono v2-mc"
-          style={{ color: "var(--color-bnb)" }}
-        >
-          +<span className="v2-tnum">{next.totalXp}</span> XP
-        </span>
+        <Insignia moduleSlug={next.slug} state="locked" size="sm" />
       </div>
 
       <I18nLink

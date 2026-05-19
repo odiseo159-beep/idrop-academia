@@ -1,6 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { QUEST_OF_DAY_PATH } from "@/lib/quest-of-day";
+import { Insignia } from "@/components/v2/insignia";
 import type { Locale, Module } from "@/lib/types";
 
 interface V2AcademiaProps {
@@ -51,7 +52,6 @@ export async function V2Academia({ locale, modules }: V2AcademiaProps) {
   const orderedModules = orderModules(modules);
 
   const totalLessons = orderedModules.reduce((s, m) => s + m.totalLessons, 0);
-  const totalXp = orderedModules.reduce((s, m) => s + m.totalXp, 0);
 
   return (
     <section
@@ -176,9 +176,9 @@ export async function V2Academia({ locale, modules }: V2AcademiaProps) {
               unit={t("statLessonsUnit")}
             />
             <V2BigStat
-              label={t("statXp")}
-              value={totalXp.toLocaleString("en-US")}
-              unit={t("statXpUnit")}
+              label={t("statInsignias")}
+              value={String(modules.length).padStart(2, "0")}
+              unit={t("statInsigniasUnit")}
             />
           </div>
         </div>
@@ -291,7 +291,7 @@ export async function V2Academia({ locale, modules }: V2AcademiaProps) {
           ))}
         </div>
 
-        {/* Quest diaria — bottom strip */}
+        {/* Lección de hoy — bottom strip (softened: no timer, no streak pressure) */}
         <div
           data-rise
           data-rise-delay="160"
@@ -299,7 +299,7 @@ export async function V2Academia({ locale, modules }: V2AcademiaProps) {
           style={{
             marginTop: 24,
             display: "grid",
-            gridTemplateColumns: "auto 1fr auto auto",
+            gridTemplateColumns: "auto 1fr auto",
             gap: 28,
             alignItems: "center",
             padding: "20px 28px",
@@ -335,28 +335,6 @@ export async function V2Academia({ locale, modules }: V2AcademiaProps) {
               {t("questMeta")}
             </div>
           </div>
-          <div
-            className="v2-mono v2-mc"
-            style={{
-              display: "flex",
-              alignItems: "baseline",
-              gap: 10,
-              color: "var(--color-t-3)",
-            }}
-          >
-            <span>{t("streak")}</span>
-            <span
-              className="v2-serif v2-tnum"
-              style={{
-                fontSize: 28,
-                color: "var(--color-t-0)",
-                fontWeight: 400,
-              }}
-            >
-              03
-            </span>
-            <span>{t("streakUnit")}</span>
-          </div>
           <Link
             href={QUEST_OF_DAY_PATH}
             prefetch
@@ -375,7 +353,7 @@ export async function V2Academia({ locale, modules }: V2AcademiaProps) {
               gap: 8,
             }}
           >
-            <span className="v2-arrow">▸</span> {t("questCta")}
+            {t("questCta")} <span className="v2-arrow">→</span>
           </Link>
         </div>
       </div>
@@ -680,7 +658,8 @@ function V2ModuleCard({
         )}
       </div>
 
-      {/* Stats row */}
+      {/* Stats row + insignia teaser (locked state — preview of what completing
+          the module unlocks; actual earned-state lives in the profile). */}
       <div
         style={{
           marginTop: 20,
@@ -688,7 +667,7 @@ function V2ModuleCard({
           borderTop: "1px solid var(--color-line-1)",
           display: "flex",
           justifyContent: "space-between",
-          alignItems: "baseline",
+          alignItems: "center",
         }}
       >
         <span
@@ -698,12 +677,7 @@ function V2ModuleCard({
           {m.totalLessons} {labels.lessonsShort} · {m.durationMinutes}{" "}
           {labels.minShort}
         </span>
-        <span
-          className="v2-mono v2-mc"
-          style={{ color: numeralColor }}
-        >
-          +{m.totalXp} XP
-        </span>
+        <Insignia moduleSlug={m.slug} state="locked" size="sm" />
       </div>
 
       {/* CTA row */}
